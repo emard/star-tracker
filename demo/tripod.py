@@ -40,13 +40,19 @@ for n in range(20):
   else:
     camera_position   = intersect[0]
 
-  camera_heading_tail = (np.array(px)+np.array(py)+np.array(pz))/3
-  # print("camera_heading_tail", camera_heading_tail)
+  # simple camera heading
+  # make 2 unit vectors along 2 tripod legs
+  # camera heading is a vector defined by 2 heads of unit vector
+  # here we make all 3 unit vectors for code symmetry
+  px1  = px-camera_position;
+  px1 /= np.linalg.norm(px1)
+  py1  = py-camera_position;
+  py1 /= np.linalg.norm(py1)
+  pz1  = pz-camera_position;
+  pz1 /= np.linalg.norm(pz1)
 
-  camera_heading = camera_position - camera_heading_tail
+  camera_heading = py1-pz1;
   camera_heading /= np.linalg.norm(camera_heading)
-
-  #print("cam pos", camera_position, "cam head", camera_heading)
 
   # assemble vector array for plotting
   vectors = np.array([
