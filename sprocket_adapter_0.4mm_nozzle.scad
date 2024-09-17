@@ -26,7 +26,7 @@ ydim = 29;
 
 /* free space between parts */
 freespace_big = 0.0;
-freespace_small = 0.2;
+freespace_small = 0.1;
 
 /* number of small dents */
 ndent1 = 40;
@@ -39,7 +39,7 @@ wdent1s = 0.3;
 /* big wheel radius (with dents d = 16.7mm)  */
 rbig = (16.7+freespace_big)/2;
 /* big wheel height */
-zbig = 4.5;
+zbig = 3.5;
 
 /* number of big dents = half of small dents */
 ndent2 = ndent1/2;
@@ -56,7 +56,7 @@ rsmall = (13.0+freespace_small)/2;
 overcut = 0.001;
 
 /* mounting hole radius */
-rmounthole = 1.9/2;
+rmounthole = 1.0/2;
 /* mounting holes distance */
 dmounthole = 22;
 
@@ -209,7 +209,7 @@ union() {
 }
 
 // printable position
-if(0)
+if(1)
 translate([0,0,xdim/2])
   rotate([0,-90,0])
     sprocket_adapter();
