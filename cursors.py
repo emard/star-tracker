@@ -54,27 +54,26 @@ while run:
         if event.type == pygame.QUIT:
             run = False
         if event.type == pygame.KEYDOWN:
-            print(pygame.key.name(event.key))
 
-        keys = pygame.key.get_pressed()
+            keys = pygame.key.get_pressed()
 
-        rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel
-        rect.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * vel
+            rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel
+            rect.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * vel
 
-        x += (keys[pygame.K_RIGHT]    - keys[pygame.K_LEFT]    ) * tvel
-        y += (keys[pygame.K_UP]       - keys[pygame.K_DOWN]    ) * tvel
-        z += (keys[pygame.K_PAGEUP]   - keys[pygame.K_PAGEDOWN]) * tvel
-        cnc.write(b"G1 X%.0f Y%.0f Z%.0f F30\r" % (x,y,z))
-        line = cnc.readline()
-        print(line)
-        print("XYZ = %5.0f %5.0f %5.0f" % (x,y,z))
+            x += (keys[pygame.K_RIGHT]    - keys[pygame.K_LEFT]    ) * tvel
+            y += (keys[pygame.K_UP]       - keys[pygame.K_DOWN]    ) * tvel
+            z += (keys[pygame.K_PAGEUP]   - keys[pygame.K_PAGEDOWN]) * tvel
+            cnc.write(b"G1 X%.0f Y%.0f Z%.0f F30\r" % (x,y,z))
+            line = cnc.readline()
+            print(pygame.key.name(event.key),line)
+            print("XYZ = %5.0f %5.0f %5.0f" % (x,y,z))
 
-        rect.centerx = rect.centerx % window.get_width()
-        rect.centery = rect.centery % window.get_height()
+            rect.centerx = rect.centerx % window.get_width()
+            rect.centery = rect.centery % window.get_height()
 
-        window.fill(0)
-        pygame.draw.rect(window, (255, 0, 0), rect)
-        pygame.display.flip()
+            window.fill(0)
+            pygame.draw.rect(window, (255, 0, 0), rect)
+            pygame.display.flip()
 
 pygame.quit()
 exit()
