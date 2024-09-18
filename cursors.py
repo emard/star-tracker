@@ -10,6 +10,10 @@ line = cnc.readline()
 cnc.write(b"M92\r")
 line = cnc.readline()
 print(line)
+# turn green LED on
+cnc.write(b"M106\r")
+line = cnc.readline()
+print(line)
 # set higher currents for 5V
 if 0:
   cnc.write(b"M906 X1200 Y1200 Z1200\r")
