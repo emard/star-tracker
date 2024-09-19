@@ -52,7 +52,7 @@ M18 S1 X Y Z
 ;read endstop status (test them with blue jumpers)
 M119
 
-;set absolute mode
+;set absolute mode (default)
 G90
 
 ;set relative mode
@@ -61,6 +61,9 @@ G91
 ;motor go to position XYZ=1,2,3 mm
 ;at feed rate 10 mm/minute
 G1 X1 Y2 Z3 F10
+
+;Wait until move is finished (printing "echo:busy processing" then "ok")
+M400
 
 ; full stroke is about 300 mm
 
