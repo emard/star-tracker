@@ -2,8 +2,39 @@
 
 import pygame
 import serial
+import time
+import numpy as np
 
-cnc = serial.Serial('/dev/ttyACM0')
+# time when program started
+t0 = time.time()
+
+# lets use x,y,z,t (4-vector) to describe spacetime state
+# initial position motors at xyz=0, current time
+
+st_target = np.array([0,0,0,t0])
+# st_last   = st_target.copy()
+
+# read current unix time (UTC)
+# and calculate motor target position
+# for short time dt [s] in the future
+# to generate next g-code
+# returns: (X,Y,Z,F)
+# XYZ [mm]   position
+# F   [mm/s] feed rate
+def calculate_future_position(dt):
+  tn = time.time()
+  # tf is time in the future
+  tf = tn + dt # [s] unix time float seconds since 1970
+  feed_rate = 2.2 # [mm/min]
+  # next position
+  st_next = np.array([(tf-t0)/60*2.2,0,0,tf])
+  # print("%8.2f %8.2f %8.2f %15.2f" % (st_next[0],st_next[1],st_next[2],st_next[3]))
+  st_target = st_next;
+  return st_next
+
+# main loop
+
+cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
 
 cnc.write(b"M92 X3200 Y3200 Z3200\r") # steps per mm
 line = cnc.readline()
@@ -53,7 +84,8 @@ tvel = 1 # cnc motor velocity
 
 run = True
 while run:
-    clock.tick(60)
+    clock.tick(10) # FPS = frames per second this loop should run
+    calculate_future_position(1)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
