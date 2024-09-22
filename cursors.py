@@ -32,11 +32,26 @@ def calculate_future_position(dt):
   st_target = st_next;
   return st_next
 
+def drain():
+  for line in cnc.readline():
+    continue
+
+def position(x,y,z):
+  cnc.write(b"G1 X%.0f Y%.0f Z%.0f F60\r" % (x,y,z))
+  drain()
+
+def waitcomplete():
+  cnc.write(b"M400\r")
+  for line in cnc.readline():
+    if line < 20: # probably "ok" response
+      break
+  drain()
+
 # main loop
 
 cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
 
-cnc.write(b"M92 X3200 Y3200 Z3200\r") # steps per mm
+cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
 line = cnc.readline()
 cnc.write(b"M92\r")
 line = cnc.readline()
@@ -99,10 +114,12 @@ while run:
             x += (keys[pygame.K_RIGHT]    - keys[pygame.K_LEFT]    ) * tvel
             y += (keys[pygame.K_UP]       - keys[pygame.K_DOWN]    ) * tvel
             z += (keys[pygame.K_PAGEUP]   - keys[pygame.K_PAGEDOWN]) * tvel
-            cnc.write(b"G1 X%.0f Y%.0f Z%.0f F30\r" % (x,y,z))
-            line = cnc.readline()
-            print(pygame.key.name(event.key),line)
+            position(x,y,z)
+            # cnc.write(b"G1 X%.0f Y%.0f Z%.0f F30\r" % (x,y,z))
+            # line = cnc.readline()
+            print(pygame.key.name(event.key))
             print("XYZ = %5.0f %5.0f %5.0f" % (x,y,z))
+            waitcomplete()
 
             rect.centerx = rect.centerx % window.get_width()
             rect.centery = rect.centery % window.get_height()
