@@ -52,14 +52,12 @@ def waitcomplete():
 cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
 
 cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
-line = cnc.readline()
+drain()
 cnc.write(b"M92\r")
-line = cnc.readline()
-print(line)
+drain()
 # turn green LED on
 cnc.write(b"M106\r")
-line = cnc.readline()
-print(line)
+drain()
 # set higher currents for 5V
 if 0:
   cnc.write(b"M906 X1200 Y1200 Z1200\r")
@@ -78,12 +76,9 @@ if 0:
     cnc.readline()
     print(line)
 cnc.write(b"G90\r") # absolute mode
-line = cnc.readline()
-print(line)
+drain()
 cnc.write(b"M18 S1 X Y Z\r") # inactive release power 1 s
-line = cnc.readline()
-print(line)
-
+drain()
 pygame.init()
 window = pygame.display.set_mode((300, 300))
 clock = pygame.time.Clock()
