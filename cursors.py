@@ -7,37 +7,40 @@ import numpy as np
 
 # time when program started
 t0 = time.time()
+tp = t0
 
 # lets use x,y,z,t (4-vector) to describe spacetime state
 # initial position motors at xyz=0, current time
 
-st_target = np.array([0,0,0,t0])
-# st_last   = st_target.copy()
+st_manual = np.array([0.0,0.0,0.0,0.0])
+st_target = np.array([0.0,0.0,0.0,t0])
+st_speed  = np.array([0.0,0.0,0.0,0.0])
 
 # read current unix time (UTC)
 # and calculate motor target position
 # for short time dt [s] in the future
 # to generate next g-code
 # returns: (X,Y,Z,F)
-# XYZ [mm]   position
-# F   [mm/s] feed rate
+# XYZ [mm]     position
+# F   [mm/min] feed rate (currently not working)
 def calculate_future_position(dt):
+  global tp
   tn = time.time()
   # tf is time in the future
   tf = tn + dt # [s] unix time float seconds since 1970
-  feed_rate = 2.2 # [mm/min]
+  tdelta = tf-tp
+  tp = tf
   # next position
-  st_next = np.array([(tf-t0)/60*2.2,0,0,tf])
+  st_next = st_target + st_speed * tdelta/60
   # print("%8.2f %8.2f %8.2f %15.2f" % (st_next[0],st_next[1],st_next[2],st_next[3]))
-  st_target = st_next;
   return st_next
 
 def drain():
   for line in cnc.readline():
     continue
 
-def position(x,y,z):
-  cnc.write(b"G1 X%.0f Y%.0f Z%.0f F60\r" % (x,y,z))
+def position(x,y,z,feed):
+  cnc.write(b"G1 X%.2f Y%.2f Z%.2f F%.2f\r" % (x,y,z,feed))
   drain()
 
 def waitcomplete():
@@ -85,7 +88,7 @@ clock = pygame.time.Clock()
 
 rect = pygame.Rect(0, 0, 20, 20)
 rect.center = window.get_rect().center
-vel = 1
+vel = 10
 
 x=0
 y=0
@@ -93,9 +96,14 @@ z=0
 tvel = 1 # cnc motor velocity
 
 run = True
+calc_every = 10
+calc = 0
+position(0,0,0,60)
+waitcomplete()
 while run:
-    clock.tick(10) # FPS = frames per second this loop should run
-    calculate_future_position(1)
+    clock.tick(25) # FPS = frames per second this loop should run
+    if calc == 0:
+      st_target = calculate_future_position(1)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -106,15 +114,36 @@ while run:
             rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel
             rect.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * vel
 
-            x += (keys[pygame.K_RIGHT]    - keys[pygame.K_LEFT]    ) * tvel
-            y += (keys[pygame.K_UP]       - keys[pygame.K_DOWN]    ) * tvel
-            z += (keys[pygame.K_PAGEUP]   - keys[pygame.K_PAGEDOWN]) * tvel
-            position(x,y,z)
             # cnc.write(b"G1 X%.0f Y%.0f Z%.0f F30\r" % (x,y,z))
             # line = cnc.readline()
+            keyname = pygame.key.name(event.key)
             print(pygame.key.name(event.key))
-            print("XYZ = %5.0f %5.0f %5.0f" % (x,y,z))
-            waitcomplete()
+            if keyname == "insert":
+              st_manual[0] += 1
+            if keyname == "delete":
+              st_manual[0] -= 1
+            if keyname == "home":
+              st_manual[1] += 1
+            if keyname == "end":
+              st_manual[1] -= 1
+            if keyname == "page up":
+              st_manual[2] += 1
+            if keyname == "page down":
+              st_manual[2] -= 1
+
+            if keyname == "q":
+              st_speed[0] += 0.1
+            if keyname == "a":
+              st_speed[0] -= 0.1
+            if keyname == "w":
+              st_speed[1] += 0.1
+            if keyname == "s":
+              st_speed[1] -= 0.1
+            if keyname == "e":
+              st_speed[2] += 0.1
+            if keyname == "d":
+              st_speed[2] -= 0.1
+            print(st_speed)
 
             rect.centerx = rect.centerx % window.get_width()
             rect.centery = rect.centery % window.get_height()
@@ -122,6 +151,30 @@ while run:
             window.fill(0)
             pygame.draw.rect(window, (255, 0, 0), rect)
             pygame.display.flip()
+
+            st_final = st_target + st_manual
+            x = st_final[0]
+            y = st_final[1]
+            z = st_final[2]
+            position(x,y,z,60)
+            print("XYZ = %7.1f %7.1f %7.1f" % (x,y,z))
+            waitcomplete()
+
+    st_final = st_target + st_manual
+
+    x = st_final[0]
+    y = st_final[1]
+    z = st_final[2]
+
+    if calc == 0:
+      position(x,y,z,3)
+      print("XYZ = %8.2f%+.2f %8.2f%+.2f %8.2f%+.2f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
+      waitcomplete()
+
+    if calc < calc_every:
+      calc += 1
+    else:
+      calc = 0
 
 pygame.quit()
 exit()
