@@ -40,7 +40,7 @@ def drain():
     continue
 
 def position(x,y,z,feed):
-  cnc.write(b"G1 X%.2f Y%.2f Z%.2f F%.2f\r" % (x,y,z,feed))
+  cnc.write(b"G1 X%.3f Y%.3f Z%.3f F%.3f\r" % (x,y,z,feed))
   drain()
 
 def waitcomplete():
@@ -80,7 +80,7 @@ if 0:
     print(line)
 cnc.write(b"G90\r") # absolute mode
 drain()
-cnc.write(b"M18 S1 X Y Z\r") # inactive release power 1 s
+cnc.write(b"M18 S5 X Y Z\r") # inactive release power 5 s
 drain()
 pygame.init()
 window = pygame.display.set_mode((300, 300))
@@ -98,7 +98,7 @@ tvel = 1 # cnc motor velocity
 run = True
 calc_every = 10
 calc = 0
-position(0,0,0,60)
+position(0,0,0,120)
 waitcomplete()
 while run:
     clock.tick(25) # FPS = frames per second this loop should run
@@ -143,7 +143,7 @@ while run:
               st_speed[2] += 0.1
             if keyname == "d":
               st_speed[2] -= 0.1
-            print(st_speed)
+            # print(st_speed)
 
             rect.centerx = rect.centerx % window.get_width()
             rect.centery = rect.centery % window.get_height()
@@ -156,8 +156,8 @@ while run:
             x = st_final[0]
             y = st_final[1]
             z = st_final[2]
-            position(x,y,z,60)
-            print("XYZ = %7.1f %7.1f %7.1f" % (x,y,z))
+            position(x,y,z,120)
+            # print("XYZ = %7.1f %7.1f %7.1f" % (x,y,z))
             waitcomplete()
 
     st_final = st_target + st_manual
