@@ -188,7 +188,7 @@ while run:
       f = st_final[3]
 
       if calc == 0:
-        position(x,y,z,f*1.1)
+        position(x,y,z,f*1.01) # feed slightly faster to prevent buffer overflow
         print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f %8.2f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],f))
         waitcomplete()
 
