@@ -141,33 +141,39 @@ while run:
             #rect.x += (keys[pygame.K_RIGHT] - keys[pygame.K_LEFT]) * vel
             #rect.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * vel
 
+            mods = pygame.key.get_mods()
+            if mods & 3: # if left or right shift is pressed
+              manualstep = 1 # large step
+            else: # no shift
+              manualstep = 0.1 # small step
+
             keyname = pygame.key.name(event.key)
             # print(pygame.key.name(event.key))
             if keyname == "insert":
-              st_manual[0] += 1
+              st_manual[0] += manualstep
             if keyname == "delete":
-              st_manual[0] -= 1
+              st_manual[0] -= manualstep
             if keyname == "home":
-              st_manual[1] += 1
+              st_manual[1] += manualstep
             if keyname == "end":
-              st_manual[1] -= 1
+              st_manual[1] -= manualstep
             if keyname == "page up":
-              st_manual[2] += 1
+              st_manual[2] += manualstep
             if keyname == "page down":
-              st_manual[2] -= 1
+              st_manual[2] -= manualstep
 
             if keyname == "q":
-              st_speed[0] += 0.1
+              st_speed[0] += manualstep
             if keyname == "a":
-              st_speed[0] -= 0.1
+              st_speed[0] -= manualstep
             if keyname == "w":
-              st_speed[1] += 0.1
+              st_speed[1] += manualstep
             if keyname == "s":
-              st_speed[1] -= 0.1
+              st_speed[1] -= manualstep
             if keyname == "e":
-              st_speed[2] += 0.1
+              st_speed[2] += manualstep
             if keyname == "d":
-              st_speed[2] -= 0.1
+              st_speed[2] -= manualstep
             # print(st_speed)
 
             st_final = st_target + st_manual
@@ -189,7 +195,7 @@ while run:
 
       if calc == 0:
         position(x,y,z,f*1.01) # feed slightly faster to prevent buffer overflow
-        print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f %8.2f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],f))
+        print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
         waitcomplete()
 
     rect.centerx = st_final[0] * 100
