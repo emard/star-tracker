@@ -1,20 +1,46 @@
 #!/usr/bin/env python3
 
+# X (front) to east
+# Y (right) to south west
+# Z (left)  to north west
+
+# manual position control
+
+#                  Image move
+# Insert     X++   down
+# Delete     X--   up
+# Home       Y++   up right
+# End        Y--   down left
+# Page Up    Z++   up left
+# Page Down  Z--   down right
+
+# manual speed control
+
+#                  Image speed
+# Q          Xs++  down
+# A          Xs--  up
+# W          Ys++  up right
+# S          Ys--  down left
+# E          Zs++  up left
+# D          Zs--  down right
+
 import pygame
 import serial
 import time
 import numpy as np
+from math import *
 
 # time when program started
 t0 = time.time()
 tp = t0
 
-# lets use x,y,z,t (4-vector) to describe spacetime state
+# lets use x,y,z,f (4-vector) to describe spacetime state
+# f is feed rate mm/min
 # initial position motors at xyz=0, current time
 
-st_manual = np.array([0.0,0.0,0.0,0.0])
-st_target = np.array([0.0,0.0,0.0,t0])
-st_speed  = np.array([0.0,0.0,0.0,0.0])
+st_manual = np.array([ 0.0, 0.0, 0.0, 0.0])
+st_target = np.array([ 0.0, 0.0, 0.0, 0.0])
+st_speed  = np.array([ 2.0,-1.5, 0.5, 0.0])
 
 # read current unix time (UTC)
 # and calculate motor target position
@@ -32,7 +58,9 @@ def calculate_future_position(dt):
   tp = tf
   # next position
   st_next = st_target + st_speed * tdelta/60
-  # print("%8.2f %8.2f %8.2f %15.2f" % (st_next[0],st_next[1],st_next[2],st_next[3]))
+  # compute feed rate
+  st_next[3] = sqrt(st_speed[0]*st_speed[0]+st_speed[1]*st_speed[1]+st_speed[2]*st_speed[2])
+  # print("%8.2f %8.2f %8.2f %8.2f" % (st_next[0],st_next[1],st_next[2],st_next[3]))
   return st_next
 
 def drain():
@@ -157,10 +185,11 @@ while run:
       x = st_final[0]
       y = st_final[1]
       z = st_final[2]
+      f = st_final[3]
 
       if calc == 0:
-        position(x,y,z,3)
-        print("XYZ = %8.2f%+.2f %8.2f%+.2f %8.2f%+.2f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
+        position(x,y,z,f*1.1)
+        print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f %8.2f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],f))
         waitcomplete()
 
     rect.centerx = st_final[0] * 100
