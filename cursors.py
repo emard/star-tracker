@@ -129,7 +129,7 @@ calc = 0
 position(0,0,0,120)
 waitcomplete()
 while run:
-    clock.tick(50) # FPS = frames per second this loop should run
+    clock.tick(10) # FPS = frames per second this loop should run
     if calc == 0:
       st_target = calculate_future_position(1)
     automove = True
@@ -182,7 +182,7 @@ while run:
             z = st_final[2]
             position(x,y,z,120)
 
-            waitcomplete()
+            # waitcomplete()
             automove = False
 
     if automove:
@@ -194,7 +194,7 @@ while run:
       f = st_final[3]
 
       if calc == 0:
-        position(x,y,z,f*1.01) # feed slightly faster to prevent buffer overflow
+        position(x,y,z,f*1.02) # feed slightly faster to prevent buffer overflow
         print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
         waitcomplete()
 
