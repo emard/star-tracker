@@ -68,7 +68,7 @@ def drain():
     continue
 
 def position(x,y,z,feed):
-  cnc.write(b"G1 X%.3f Y%.3f Z%.3f F%.3f\r" % (x,y,z,feed))
+  cnc.write(b"G1 X%.2f Y%.2f Z%.2f F%.2f\r" % (x,y,z,feed))
   drain()
 
 def waitcomplete():
