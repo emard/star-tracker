@@ -40,7 +40,7 @@ tp = t0
 
 st_manual = np.array([ 0.0, 0.0, 0.0, 0.0])
 st_target = np.array([ 0.0, 0.0, 0.0, 0.0])
-st_speed  = np.array([ 2.0,-1.5, 0.5, 0.0])
+st_speed  = np.array([ 0.0, 0.0, 0.0, 0.0])
 
 # read current unix time (UTC)
 # and calculate motor target position
@@ -123,8 +123,9 @@ y=0
 z=0
 tvel = 1 # cnc motor velocity
 
+responsive_countdown = 0
 run = True
-calc_every = 20
+calc_every = 10
 calc = 0
 position(0,0,0,120)
 waitcomplete()
@@ -132,7 +133,6 @@ while run:
     clock.tick(10) # FPS = frames per second this loop should run
     if calc == 0:
       st_target = calculate_future_position(1)
-    automove = True
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -175,17 +175,9 @@ while run:
             if keyname == "d":
               st_speed[2] -= manualstep
             # print(st_speed)
+            responsive_countdown = 5
 
-            st_final = st_target + st_manual
-            x = st_final[0]
-            y = st_final[1]
-            z = st_final[2]
-            position(x,y,z,120)
-
-            # waitcomplete()
-            automove = False
-
-    if automove:
+    if True:
       st_final = st_target + st_manual
 
       x = st_final[0]
@@ -194,9 +186,13 @@ while run:
       f = st_final[3]
 
       if calc == 0:
-        position(x,y,z,f*1.02) # feed slightly faster to prevent buffer overflow
+        if responsive_countdown:
+          responsive_countdown -= 1
+          position(x,y,z,30) # fast position
+        else:
+          position(x,y,z,f*1.1) # feed slightly faster to prevent buffer overflow
+          waitcomplete()
         print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
-        waitcomplete()
 
     rect.centerx = st_final[0] * 100
     rect.centery = st_final[1] * 100
