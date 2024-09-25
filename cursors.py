@@ -247,9 +247,9 @@ while run:
         t_target = time.time()
         st_delta = st_target - st_before
         t_delta = t_target - t_before
-        feed_rate = np.linalg.norm(st_delta) * t_delta * 60 + 5 * responsive_countdown + 0.01
-        if feed_rate > 30:
-          feed_rate = 30
+        feed_rate = np.linalg.norm(st_delta) * t_delta * 60 + 6 * responsive_countdown + 0.01
+        if feed_rate > 60:
+          feed_rate = 60
         if responsive_countdown:
           responsive_countdown -= 1
         position(x,y,z,feed_rate)
