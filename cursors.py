@@ -39,13 +39,17 @@ from math import *
 t0 = time.time()
 tp = t0
 
-# lets use x,y,z,f (4-vector) to describe spacetime state
-# f is feed rate mm/min
-# initial position motors at xyz=0, current time
-
-st_manual = np.array([ 0.0, 0.0, 0.0 ])
+st_before = np.array([ 0.0, 0.0, 0.0 ])
 st_target = np.array([ 0.0, 0.0, 0.0 ])
+st_delta  = np.array([ 0.0, 0.0, 0.0 ])
+
 st_speed  = np.array([ 0.0, 0.0, 0.0 ])
+
+d_track   = np.array([ 0.0, 0.0, 0.0 ]) # auto tracking delta
+d_manual  = np.array([ 0.0, 0.0, 0.0 ]) # manual delta
+
+t_target  = 0
+t_before  = 0
 
 # read current unix time (UTC)
 # and calculate motor target position
@@ -67,6 +71,16 @@ def calculate_future_position(dt):
   feed_rate = np.linalg.norm(st_speed)
   # print("%8.2f %8.2f %8.2f %8.2f" % (st_next[0],st_next[1],st_next[2],st_next[3]))
   return (st_next, feed_rate)
+
+def delta_position():
+  global tp
+  tn = time.time()
+  # tf is time in the future
+  tf = tn  # [s] unix time float seconds since 1970
+  tdelta = tf-tp
+  tp = tf
+  # delta position
+  return st_speed * tdelta/60
 
 # simple functions
 
@@ -130,18 +144,24 @@ y=0
 z=0
 tvel = 1 # cnc motor velocity
 
-responsive_countdown = 0
+responsive_countdown = 5
 run = True
+feed_more = 0.1 # [mm/min] to finish feed a bit early than control loop repeats
 step_time = 1 # [s] control recalculation time
 fps = 10 # [1/s] frames per second to read keys and draw
 calc_every = step_time * fps
 calc = 0 # counter
+resync_every = 60 # every min one resync
+resync = 0
 position(0,0,0,120) # reset initial position
 waitcomplete()
 while run:
-    clock.tick(fps) # FPS = frames per second this loop should run
+    # clock.tick(fps) # FPS = frames per second this loop should run
     if calc == 0:
-      (st_target, feed_rate) = calculate_future_position(1)
+      d_track = delta_position()
+    else:
+      d_track = np.array([0.0, 0.0, 0.0])
+    d_manual = np.array([0.0, 0.0, 0.0])
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -159,17 +179,17 @@ while run:
             keyname = pygame.key.name(event.key)
             # print(pygame.key.name(event.key))
             if keyname == "insert":
-              st_manual[0] += manualstep
+              d_manual[0] += manualstep
             if keyname == "delete":
-              st_manual[0] -= manualstep
+              d_manual[0] -= manualstep
             if keyname == "home":
-              st_manual[1] += manualstep
+              d_manual[1] += manualstep
             if keyname == "end":
-              st_manual[1] -= manualstep
+              d_manual[1] -= manualstep
             if keyname == "page up":
-              st_manual[2] += manualstep
+              d_manual[2] += manualstep
             if keyname == "page down":
-              st_manual[2] -= manualstep
+              d_manual[2] -= manualstep
 
             if keyname == "q":
               st_speed[0] += manualstep
@@ -186,24 +206,30 @@ while run:
             # print(st_speed)
             responsive_countdown = 5
 
-    if True:
-      st_final = st_target + st_manual
+    st_target += d_track + d_manual
 
-      x = st_final[0]
-      y = st_final[1]
-      z = st_final[2]
+    if True:
+      x = st_target[0]
+      y = st_target[1]
+      z = st_target[2]
 
       if calc == 0:
+        t_target = time.time()
+        st_delta = st_target - st_before
+        t_delta = t_target - t_before
+        feed_rate = np.linalg.norm(st_delta) * t_delta * 60 + 5 * responsive_countdown + 0.01
+        if feed_rate > 30:
+          feed_rate = 30
         if responsive_countdown:
           responsive_countdown -= 1
-          position(x,y,z,30) # fast position
-        else:
-          position(x,y,z,feed_rate*1.1) # feed slightly faster to prevent buffer overflow
-          waitcomplete()
+        position(x,y,z,feed_rate)
         print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
+        # print(feed_rate, t_delta)
+        st_before = st_target.copy()
+        t_before = t_target
 
-    rect.centerx = st_final[0] * 100
-    rect.centery = st_final[1] * 100
+    rect.centerx = st_target[0] * 100
+    rect.centery = st_target[1] * 100
 
     # print("XYZ = %7.1f %7.1f %7.1f" % (x,y,z))
 
@@ -216,8 +242,15 @@ while run:
 
     if calc < calc_every:
       calc += 1
+      clock.tick(fps) # FPS = frames per second this loop should run
     else:
       calc = 0
+      if resync < resync_every:
+        resync += 1
+      else:
+        resync = 0
+        # print("waiting for resync")
+        waitcomplete()
 
 pygame.quit()
 exit()
