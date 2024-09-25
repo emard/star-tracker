@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+# motor/leg position
+
 # X (front) to east
 # Y (right) to south west
 # Z (left)  to north west
+
+#  X
+# Z Y
 
 # manual position control
 
@@ -38,9 +43,9 @@ tp = t0
 # f is feed rate mm/min
 # initial position motors at xyz=0, current time
 
-st_manual = np.array([ 0.0, 0.0, 0.0, 0.0])
-st_target = np.array([ 0.0, 0.0, 0.0, 0.0])
-st_speed  = np.array([ 0.0, 0.0, 0.0, 0.0])
+st_manual = np.array([ 0.0, 0.0, 0.0 ])
+st_target = np.array([ 0.0, 0.0, 0.0 ])
+st_speed  = np.array([ 0.0, 0.0, 0.0 ])
 
 # read current unix time (UTC)
 # and calculate motor target position
@@ -59,9 +64,11 @@ def calculate_future_position(dt):
   # next position
   st_next = st_target + st_speed * tdelta/60
   # compute feed rate
-  st_next[3] = sqrt(st_speed[0]*st_speed[0]+st_speed[1]*st_speed[1]+st_speed[2]*st_speed[2])
+  feed_rate = np.linalg.norm(st_speed)
   # print("%8.2f %8.2f %8.2f %8.2f" % (st_next[0],st_next[1],st_next[2],st_next[3]))
-  return st_next
+  return (st_next, feed_rate)
+
+# simple functions
 
 def drain():
   for line in cnc.readline():
@@ -125,14 +132,16 @@ tvel = 1 # cnc motor velocity
 
 responsive_countdown = 0
 run = True
-calc_every = 10
-calc = 0
-position(0,0,0,120)
+step_time = 1 # [s] control recalculation time
+fps = 10 # [1/s] frames per second to read keys and draw
+calc_every = step_time * fps
+calc = 0 # counter
+position(0,0,0,120) # reset initial position
 waitcomplete()
 while run:
-    clock.tick(10) # FPS = frames per second this loop should run
+    clock.tick(fps) # FPS = frames per second this loop should run
     if calc == 0:
-      st_target = calculate_future_position(1)
+      (st_target, feed_rate) = calculate_future_position(1)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
@@ -183,14 +192,13 @@ while run:
       x = st_final[0]
       y = st_final[1]
       z = st_final[2]
-      f = st_final[3]
 
       if calc == 0:
         if responsive_countdown:
           responsive_countdown -= 1
           position(x,y,z,30) # fast position
         else:
-          position(x,y,z,f*1.1) # feed slightly faster to prevent buffer overflow
+          position(x,y,z,feed_rate*1.1) # feed slightly faster to prevent buffer overflow
           waitcomplete()
         print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
 
