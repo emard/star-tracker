@@ -1,13 +1,19 @@
 #!/usr/bin/env python3
 
-# motor/leg position
+# motor/leg position, mount tripod like this
+
+#          E
+#          X
+#       N Z Y S
+#          ^--- tripod handle
+#          W
+#      observer
 
 # X (front) to east
 # Y (right) to south west
 # Z (left)  to north west
 
-#  X
-# Z Y
+# keyboard controls
 
 # manual position control
 
@@ -29,6 +35,14 @@
 # E          Zs++  up left
 # D          Zs--  down right
 
+# automatic tracking
+
+# SPACE      memorize this position when object is in the center
+#            after a minute manually center same object with
+#            Insert Delete Home End Page Up Page Down
+#            when object is again in the center, press
+# RETURN     to set speed to keep object in center
+
 import pygame
 import serial
 import time
@@ -41,6 +55,7 @@ tp = t0
 
 st_before = np.array([ 0.0, 0.0, 0.0 ])
 st_target = np.array([ 0.0, 0.0, 0.0 ])
+st_memory = np.array([ 0.0, 0.0, 0.0 ])
 st_delta  = np.array([ 0.0, 0.0, 0.0 ])
 
 st_speed  = np.array([ 0.0, 0.0, 0.0 ])
@@ -50,6 +65,7 @@ d_manual  = np.array([ 0.0, 0.0, 0.0 ]) # manual delta
 
 t_target  = 0
 t_before  = 0
+t_memory  = 0
 
 # read current unix time (UTC)
 # and calculate motor target position
@@ -153,10 +169,12 @@ calc_every = step_time * fps
 calc = 0 # counter
 resync_every = 60 # every min one resync
 resync = 0
+notify = " " # to print what is memorized and set tracking
 position(0,0,0,120) # reset initial position
 waitcomplete()
 while run:
     # clock.tick(fps) # FPS = frames per second this loop should run
+    t = time.time()
     if calc == 0:
       d_track = delta_position()
     else:
@@ -203,7 +221,19 @@ while run:
               st_speed[2] += manualstep
             if keyname == "d":
               st_speed[2] -= manualstep
+
+            if keyname == "space":
+              t_memory = t
+              st_memory = st_target.copy()
+              notify = "*"
+
+            if keyname == "return":
+              st_speed = (st_target - st_memory) / (t - t_memory) * 60
+              notify = ">"
+
             # print(st_speed)
+            if responsive_countdown == 0:
+              calc = 0
             responsive_countdown = 5
 
     st_target += d_track + d_manual
@@ -223,7 +253,8 @@ while run:
         if responsive_countdown:
           responsive_countdown -= 1
         position(x,y,z,feed_rate)
-        print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f" % (x,st_speed[0],y,st_speed[1],z,st_speed[2]))
+        print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f %s" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],notify))
+        notify = " "
         # print(feed_rate, t_delta)
         st_before = st_target.copy()
         t_before = t_target
