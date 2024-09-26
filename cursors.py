@@ -102,7 +102,7 @@ def delta_position():
 # simple functions
 
 def drain():
-  return
+  #return
   for line in cnc.readline():
     continue
 
@@ -111,7 +111,7 @@ def position(x,y,z,feed):
   drain()
 
 def waitcomplete():
-  return
+  #return
   cnc.write(b"M400\r")
   for line in cnc.readline():
     if line < 20: # probably "ok" response
@@ -120,8 +120,8 @@ def waitcomplete():
 
 # main loop
 
-#cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
-cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
+cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
+#cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
 
 cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
 drain()
