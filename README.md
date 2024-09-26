@@ -1,82 +1,68 @@
-# motor speed and gcode to drive it
+# star-tracker
 
+Astrophotography motorized tripod that 
+tracks objects on the sky as earth rotates.
+DIY el-cheapo.
 
-Z axis setting has 400 steps per mm
-1.8° motor for 200 steps does one full turn
-M6 thread has 1 mm thread pitch so 1 turn = 1 mm
+3D printable parts fit 3 small step motors
+with M6 threaded rods as linear actuators for
+each of 3 legs of a cheap camera tripod
+"Vanguard VT-528A".
 
-0.5 mm/s = 1 turn/s = 60 rpm
-30 mm/min = 60 turn/min
-55 mm/min = 110 turn/min
+Motors are controled by a 3D printer motherboard
+"SKR 1.3" with Marlin firmware (g-code) powered
+from USB lithium battery. When all 3 motors are
+powered, motherboard draws about 2A, so 5V/10Ah
+battery can last for about 5h.
 
-;motor connector [2B 2A 1A 1B] = [2- 2+ 1+ 1-]
+Simple python code is used to stabilize the picture.
+Code works without any knowledge of star/planet
+positions, time, geolocation or hardware geometry
+(tripod lengths and angles).
 
-;screen /dev/ttyACM0
+Usage:
 
+Place tripod and set motor actuators to
+a position from which each leg has enough
+stroke to shorten or lengthen for tracking
+objects.
 
-; relative mode
-G91
-; set steps per unit we need 200 full steps per unit
-; but if motor is driven in 1/16 microsteps (Configuration_adv.h TMC drivers)
-; #define Z2_MICROSTEPS   128
-; we must multiply full steps per revoltion by microsteps:
-; 200*16=3200
-M92 Z3200
-; now feedrate (F parameter) means directly RPM
+Run "./cursors.py" code. Motors will be driven
+to XYZ = 0,0,0 position which is assumed as
+initial position.
 
-; set motor Z2 max current 100mA
-M906 I1 Z100
-; set motor Z max current 100mA
-M906 Z100
-; print settings
-M906
-; run one minute 110 RPM
-G0 Z110 F110
-; run few seconds 60 RPM
-G0 Z10 F60
+Manually point telephoto lens to any object on the sky,
+tighten it mechanically and apply maximum zoom.
 
-; high speed limit
-M203 Z10000
+Use keys Ins/Del, Home/End, Page UP/Down and SHIFT
+to center object in view. Those keys change
+length of each of 3 tripod legs.
+Keys without SHIFT make length change in steps of 0.1 mm,
+Keys with SHIFT do it in steps of 1 mm.
 
-; running: connect motors to X Y Z axis
+When object is in the center, press SPACE. Machine
+starts "learning".
 
-;read steps per unit
-M92
+As earth rotates, object moves from the center.
 
-;set steps per unit (1 unit = 1 mm)
-M92 X3200 Y3200 Z3200
+Use Ins/Del etc. keys to bring object to the center.
+When object is in the center again, press RETURN.
 
-;set motor inactivity timeout 1 s (save power)
-M18 S1 X Y Z
+Machine will "learn" user's centering
+and keep centering in the same direction.
 
-;read endstop status (test them with blue jumpers)
-M119
+If object still drifts slowly from the
+center, bring it mantually to the center
+and press RETURN again. Centering can
+be repeated any number of times and it
+should refine.
 
-;set absolute mode (default)
-G90
+BACKSPACE cancels manual centering done
+after the last RETURN. After BACKSPACE,
+motors wind back to position in the
+direction learned from last RETURN.
 
-;set relative mode
-G91
-
-;motor go to position XYZ=1,2,3 mm
-;at feed rate 10 mm/minute
-G1 X1 Y2 Z3 F10
-
-;Wait until move is finished (printing "echo:busy processing" then "ok")
-M400
-
-; full stroke is about 300 mm
-
-;turn 12/24V FAN LED ON
-M106
-;turn 12/24V FAN LED OFF
-M107
-
-;read motor current setting
-M906
-;set X Y Z current [mA]
-M906 X1200 Y1200 Z1200
-;StealthChop on X axis (silent)
-M569 S1 X
-;SpreadCycle on X axis (noisy)
-M569 S0 X
+If long time has passed since last SPACE or
+camera is pointed to another object, press SPACE
+to start new learning and repeat manualy centering
+and pressing RETURN.
