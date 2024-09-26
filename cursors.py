@@ -60,8 +60,8 @@ st_delta  = np.array([ 0.0, 0.0, 0.0 ])
 
 st_speed  = np.array([ 0.0, 0.0, 0.0 ])
 
-d_track   = np.array([ 0.0, 0.0, 0.0 ]) # auto tracking delta
-d_manual  = np.array([ 0.0, 0.0, 0.0 ]) # manual delta
+st_track  = np.array([ 0.0, 0.0, 0.0 ]) # auto tracking
+st_manual = np.array([ 0.0, 0.0, 0.0 ]) # manual change
 
 t_target  = 0
 t_before  = 0
@@ -101,6 +101,7 @@ def delta_position():
 # simple functions
 
 def drain():
+  return
   for line in cnc.readline():
     continue
 
@@ -109,6 +110,7 @@ def position(x,y,z,feed):
   drain()
 
 def waitcomplete():
+  return
   cnc.write(b"M400\r")
   for line in cnc.readline():
     if line < 20: # probably "ok" response
@@ -117,7 +119,8 @@ def waitcomplete():
 
 # main loop
 
-cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
+#cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
+cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
 
 cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
 drain()
@@ -176,9 +179,7 @@ while run:
     # clock.tick(fps) # FPS = frames per second this loop should run
     t = time.time()
     if calc == 0:
-      d_track = delta_position()
-    else:
-      d_track = np.array([0.0, 0.0, 0.0])
+      st_track += delta_position()
     d_manual = np.array([0.0, 0.0, 0.0])
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -197,17 +198,17 @@ while run:
             keyname = pygame.key.name(event.key)
             # print(pygame.key.name(event.key))
             if keyname == "insert":
-              d_manual[0] += manualstep
+              st_manual[0] += manualstep
             if keyname == "delete":
-              d_manual[0] -= manualstep
+              st_manual[0] -= manualstep
             if keyname == "home":
-              d_manual[1] += manualstep
+              st_manual[1] += manualstep
             if keyname == "end":
-              d_manual[1] -= manualstep
+              st_manual[1] -= manualstep
             if keyname == "page up":
-              d_manual[2] += manualstep
+              st_manual[2] += manualstep
             if keyname == "page down":
-              d_manual[2] -= manualstep
+              st_manual[2] -= manualstep
 
             if keyname == "q":
               st_speed[0] += manualstep
@@ -229,6 +230,8 @@ while run:
 
             if keyname == "return":
               st_speed = (st_target - st_memory) / (t - t_memory) * 60
+              st_track = st_target.copy()
+              st_manual *= 0
               notify = ">"
 
             # print(st_speed)
@@ -236,7 +239,7 @@ while run:
               calc = 0
             responsive_countdown = 5
 
-    st_target += d_track + d_manual
+    st_target = st_track + st_manual
 
     if True:
       x = st_target[0]
