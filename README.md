@@ -68,3 +68,8 @@ If long time has passed since last SPACE or
 camera is pointed to another object, press SPACE
 to start new learning and repeat manualy centering
 and pressing RETURN.
+
+Happy star tracking
+
+![Moon](/pic/moon.jpg)
+![Jupiter](/pic/jupiter.jpg)
