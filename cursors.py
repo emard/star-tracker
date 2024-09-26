@@ -42,6 +42,7 @@
 #            Insert Delete Home End Page Up Page Down
 #            when object is again in the center, press
 # RETURN     to set speed to keep object in center
+# BACKSPACE  to cancel manual settings, go back to auto position
 
 import pygame
 import serial
@@ -234,7 +235,7 @@ while run:
               st_manual *= 0
               notify = ">"
 
-            if keyname == "escape":
+            if keyname == "backspace":
               st_manual *= 0
               notify = "/"
 
