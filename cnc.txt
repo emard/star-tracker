@@ -1,6 +1,5 @@
 # motor speed and gcode to drive it
 
-
 Z axis setting has 400 steps per mm
 1.8° motor for 200 steps does one full turn
 M6 thread has 1 mm thread pitch so 1 turn = 1 mm
