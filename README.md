@@ -4,6 +4,8 @@ Astrophotography motorized tripod that
 tracks objects on the sky as earth rotates.
 DIY el-cheapo.
 
+![Tripod](/pic/tripod.jpg)
+
 3D printable parts fit 3 small step motors
 with M6 threaded rods as linear actuators for
 each of 3 legs of a cheap camera tripod
