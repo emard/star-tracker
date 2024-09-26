@@ -234,6 +234,10 @@ while run:
               st_manual *= 0
               notify = ">"
 
+            if keyname == "escape":
+              st_manual *= 0
+              notify = "/"
+
             # print(st_speed)
             if responsive_countdown == 0:
               calc = 0
