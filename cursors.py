@@ -157,6 +157,8 @@ clock = pygame.time.Clock()
 
 rect = pygame.Rect(0, 0, 20, 20)
 rect.center = window.get_rect().center
+shadow = pygame.Rect(0, 0, 20, 20)
+shadow.center = window.get_rect().center
 vel = 10
 
 x=0
@@ -267,15 +269,22 @@ while run:
         st_before = st_target.copy()
         t_before = t_target
 
-    rect.centerx = st_target[0] * 100
-    rect.centery = st_target[1] * 100
+    rect.centerx = ( st_target[0]-st_target[2]*0.2) * 100
+    rect.centery = (-st_target[1]-st_target[2]*0.2) * 100
+
+    shadow.centerx =  st_target[0] * 100
+    shadow.centery = -st_target[1] * 100
 
     # print("XYZ = %7.1f %7.1f %7.1f" % (x,y,z))
 
-    rect.centerx = rect.centerx % window.get_width()
-    rect.centery = rect.centery % window.get_height()
+    # clamp/wraparound
+    rect.centerx   = rect.centerx % window.get_width()
+    rect.centery   = rect.centery % window.get_height()
+    shadow.centerx = shadow.centerx % window.get_width()
+    shadow.centery = shadow.centery % window.get_height()
 
-    window.fill(0)
+    window.fill( (0,0,50) ) # blue background
+    pygame.draw.rect(window, (0, 0, 0), shadow)
     pygame.draw.rect(window, (255, 0, 0), rect)
     pygame.display.flip()
 
