@@ -26,7 +26,7 @@ for dev in devices.values(): print(dev)
 # device /dev/input/event1, name "Dell Dell USB Keyboard", phys "usb-0000:00:12.1-2/input0"
 # device /dev/input/event2, name "Logitech USB Laser Mouse", phys "usb-0000:00:12.0-2/input0"
 
-select_timeout = 0.5 # [s] if no events return every 0.5 seconds
+select_timeout = 0.1 # [s] if no events return every 0.1 seconds
 tnext = time() # next timer event
 while True:
   r, w, x = select(devices, [], [], select_timeout)
@@ -57,6 +57,8 @@ while True:
 
   t = time()
   if t > tnext:
+    if t - tnext > 2: # we came too late, reschedule
+      tnext = t
     tnext += 1 # timer every second
     print("t")
 
