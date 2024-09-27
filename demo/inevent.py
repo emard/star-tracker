@@ -17,14 +17,11 @@ for dev in devices.values(): print(dev)
 # device /dev/input/event2, name "Logitech USB Laser Mouse", phys "usb-0000:00:12.0-2/input0"
 
 while True:
-
-   r, w, x = select(devices, [], [])
-
+   r, w, x = select(devices, [], [], 1)
    for fd in r:
-
        for event in devices[fd].read():
-
            print(event)
+   print("t")
 
 # event at 1351116708.002230, code 01, type 02, val 01
 # event at 1351116708.002234, code 00, type 00, val 00
