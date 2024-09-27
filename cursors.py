@@ -149,7 +149,7 @@ def load_font():
                 filename = pygame.font.match_font(f, bold, italic)
                 if filename:
                     font = pygame.font.Font(filename, fontsize)
-                    print("Successfully loaded font: %s (%s)" % (f, filename))
+                    print("Loaded font: %s (%s)" % (f, filename))
                     return
                     break
             except IOError as e:
@@ -203,7 +203,7 @@ drain()
 cnc.write(b"M18 S5 X Y Z\r") # inactive release power 5 s
 drain()
 pygame.init()
-window = pygame.display.set_mode((480, 300))
+window = pygame.display.set_mode((640, 480))
 clock = pygame.time.Clock()
 
 rect = pygame.Rect(0, 0, 20, 20)
@@ -250,8 +250,12 @@ while run:
             #rect.y += (keys[pygame.K_DOWN] - keys[pygame.K_UP]) * vel
 
             mods = pygame.key.get_mods()
-            if mods & 3: # if left or right shift is pressed
-              manualstep = 1 # large step
+            # print("%04X" % mods)
+            if mods & 0xC3: # if left or right shift or ctrl is pressed
+              if mods & 0x03:
+                manualstep = 1 # shift: large step
+              if mods & 0xC0:
+                manualstep = 10 # ctrl: very large step
             else: # no shift
               manualstep = 0.1 # small step
 
@@ -286,7 +290,7 @@ while run:
             # goto zero position and stop tracking
             if keyname == "escape":
               st_manual *= 0
-              st_target *= 0
+              st_track  *= 0
               st_speed  *= 0
               notify = "E"
 
@@ -295,7 +299,7 @@ while run:
             if keyname == "0":
               setorigin(0,0,0)
               st_manual *= 0
-              st_target *= 0
+              st_track  *= 0
               st_speed  *= 0
               notify = "0"
 
@@ -336,7 +340,7 @@ while run:
         if responsive_countdown:
           responsive_countdown -= 1
         position(x,y,z,feed_rate)
-        report = "%8.2f%+.1f%8.2f%+.1f%8.2f%+.1f %s" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],notify)
+        report = "%+8.2f%+.1f%+8.2f%+.1f%+8.2f%+.1f %s" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],notify)
         notify = " "
         print(report)
         
