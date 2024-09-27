@@ -126,7 +126,7 @@ def load_font():
         global font
         fontnames = [
             # Bold, Italic, Font name
-            (0, 0, "Bitstream Vera Sans Mono"),
+            #(0, 0, "Bitstream Vera Sans Mono"),
             (0, 0, "DejaVu Sans Mono"),
             (0, 0, "Inconsolata"),
             (0, 0, "LucidaTypewriter"),
@@ -150,6 +150,7 @@ def load_font():
                 if filename:
                     font = pygame.font.Font(filename, fontsize)
                     print("Successfully loaded font: %s (%s)" % (f, filename))
+                    return
                     break
             except IOError as e:
                 # print("Could not load font: %s (%s)" % (f, filename))
@@ -202,7 +203,7 @@ drain()
 cnc.write(b"M18 S5 X Y Z\r") # inactive release power 5 s
 drain()
 pygame.init()
-window = pygame.display.set_mode((300, 300))
+window = pygame.display.set_mode((480, 300))
 clock = pygame.time.Clock()
 
 rect = pygame.Rect(0, 0, 20, 20)
@@ -335,31 +336,33 @@ while run:
         if responsive_countdown:
           responsive_countdown -= 1
         position(x,y,z,feed_rate)
-        print("XYZ = %8.2f%+.1f %8.2f%+.1f %8.2f%+.1f %s" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],notify))
+        report = "%8.2f%+.1f%8.2f%+.1f%8.2f%+.1f %s" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],notify)
         notify = " "
+        print(report)
+        
         # print(feed_rate, t_delta)
         st_before = st_target.copy()
         t_before = t_target
 
-    rect.centerx = ( st_target[0]-st_target[2]*0.2) * 100
-    rect.centery = (-st_target[1]-st_target[2]*0.2) * 100
+        rect.centerx = ( st_target[0]-st_target[2]*0.2) * 100
+        rect.centery = (-st_target[1]-st_target[2]*0.2) * 100
 
-    shadow.centerx =  st_target[0] * 100
-    shadow.centery = -st_target[1] * 100
+        shadow.centerx =  st_target[0] * 100
+        shadow.centery = -st_target[1] * 100
 
-    # print("XYZ = %7.1f %7.1f %7.1f" % (x,y,z))
+        # print("XYZ = %7.1f %7.1f %7.1f" % (x,y,z))
 
-    # clamp/wraparound
-    rect.centerx   = rect.centerx % window.get_width()
-    rect.centery   = rect.centery % window.get_height()
-    shadow.centerx = shadow.centerx % window.get_width()
-    shadow.centery = shadow.centery % window.get_height()
+        # clamp/wraparound
+        rect.centerx   = rect.centerx % window.get_width()
+        rect.centery   = rect.centery % window.get_height()
+        shadow.centerx = shadow.centerx % window.get_width()
+        shadow.centery = shadow.centery % window.get_height()
 
-    window.fill(background) # blue background
-    pygame.draw.rect(window, (0, 0, 0), shadow)
-    pygame.draw.rect(window, (255, 0, 0), rect)
-    textline("text 1234", (50,50), (0xFF,0xFF,0), linenumber=1)
-    pygame.display.flip()
+        window.fill(background) # blue background
+        pygame.draw.rect(window, (0, 0, 0), shadow)
+        pygame.draw.rect(window, (255, 0, 0), rect)
+        textline(report, pos=(0,0), color=(255,255,255), linenumber=0)
+        pygame.display.flip()
 
     if calc < calc_every:
       calc += 1
