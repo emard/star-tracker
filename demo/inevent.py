@@ -2,14 +2,14 @@
 
 # apt install python3-evdev
 
-from evdev import InputDevice
+# https://python-evdev.readthedocs.io/en/latest/tutorial.html
 
+from evdev import InputDevice
 from select import select
 
 # A mapping of file descriptors (integers) to InputDevice instances.
 
 devices = map(InputDevice, ('/dev/input/event0', '/dev/input/event5'))
-
 devices = {dev.fd: dev for dev in devices}
 
 for dev in devices.values(): print(dev)
