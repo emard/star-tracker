@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# apt install python3-curtsies
+
 from curtsies import Input
 
 def main():
