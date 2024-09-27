@@ -29,7 +29,7 @@ a position from which each leg has enough
 stroke to shorten or lengthen for tracking
 objects.
 
-Run "./cursors.py" code. Motors will be driven
+Run "./keyboard.py" code. Motors will be driven
 to XYZ = 0,0,0 position which is assumed as
 initial position.
 
@@ -68,6 +68,10 @@ If long time has passed since last SPACE or
 camera is pointed to another object, press SPACE
 to start new learning and repeat manualy centering
 and pressing RETURN.
+
+ESC returns motor to 0,0,0 position
+
+0 sets current position as 0,0,0
 
 Happy star tracking
 

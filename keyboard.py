@@ -171,8 +171,8 @@ def textline(text, pos, color, linenumber=0):
 
 # main loop
 
-#cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
-cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
+cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
+#cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
 
 cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
 drain()
