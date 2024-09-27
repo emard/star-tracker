@@ -106,10 +106,6 @@ def drain():
   for line in cnc.readline():
     continue
 
-def position(x,y,z,feed):
-  cnc.write(b"G1 X%.2f Y%.2f Z%.2f F%.2f\r" % (x,y,z,feed))
-  drain()
-
 def waitcomplete():
   #return
   cnc.write(b"M400\r")
@@ -117,6 +113,15 @@ def waitcomplete():
     if line < 20: # probably "ok" response
       break
   drain()
+
+def setorigin(x,y,z):
+  cnc.write(b"G92 X%.2f Y%.2f Z%.2f\r" % (x,y,z))
+  drain()
+
+def position(x,y,z,feed):
+  cnc.write(b"G1 X%.2f Y%.2f Z%.2f F%.2f\r" % (x,y,z,feed))
+  drain()
+
 
 # main loop
 
@@ -225,6 +230,20 @@ while run:
               st_speed[2] += manualstep
             if keyname == "d":
               st_speed[2] -= manualstep
+
+            # goto zero position and stop tracking
+            if keyname == "escape":
+              st_manual *= 0
+              st_target *= 0
+              st_speed  *= 0
+
+            # set current position as new zero
+            # and stop tracking
+            if keyname == "0":
+              setorigin(0,0,0)
+              st_manual *= 0
+              st_target *= 0
+              st_speed  *= 0
 
             if keyname == "space":
               t_memory = t
