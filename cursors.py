@@ -122,11 +122,56 @@ def position(x,y,z,feed):
   cnc.write(b"G1 X%.2f Y%.2f Z%.2f F%.2f\r" % (x,y,z,feed))
   drain()
 
+def load_font():
+        global font
+        fontnames = [
+            # Bold, Italic, Font name
+            (0, 0, "Bitstream Vera Sans Mono"),
+            (0, 0, "DejaVu Sans Mono"),
+            (0, 0, "Inconsolata"),
+            (0, 0, "LucidaTypewriter"),
+            (0, 0, "Lucida Typewriter"),
+            (0, 0, "Terminus"),
+            (0, 0, "Luxi Mono"),
+            (1, 0, "Monospace"),
+            (1, 0, "Courier New"),
+            (1, 0, "Courier"),
+        ]
+        # TODO: Add a command-line parameter to change the size.
+        # TODO: Maybe make this program flexible, let the window height define
+        #       the actual font/circle size.
+        fontsize     = 20
+        circleheight = 10
+        resolution   = (640, 480)
+        # font = pygame.font.SysFont(fontnames, fontsize)
+        for bold, italic, f in fontnames:
+            try:
+                filename = pygame.font.match_font(f, bold, italic)
+                if filename:
+                    font = pygame.font.Font(filename, fontsize)
+                    print("Successfully loaded font: %s (%s)" % (f, filename))
+                    break
+            except IOError as e:
+                # print("Could not load font: %s (%s)" % (f, filename))
+                pass
+        else:
+            font = pygame.font.Font(None, fontsize)
+            # print("Loaded the default fallback font: %s" % pygame.font.get_default_font())
+
+def textline(text, pos, color, linenumber=0):
+        global font, background
+        antialias = 1
+        fontheight = font.get_linesize()
+        window.blit(
+            font.render(text, antialias, color, background),
+            (pos[0], pos[1] + linenumber * fontheight)
+            # I can access top-left coordinates of a Rect by indexes 0 and 1
+        )
 
 # main loop
 
-cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
-#cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
+#cnc = serial.Serial(port='/dev/ttyACM0', timeout=1)
+cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
 
 cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
 drain()
@@ -165,6 +210,12 @@ rect.center = window.get_rect().center
 shadow = pygame.Rect(0, 0, 20, 20)
 shadow.center = window.get_rect().center
 vel = 10
+
+background = (0,0,50) # dark blue
+
+# create a text surface object,
+# on which text is drawn on it.
+load_font()
 
 x=0
 y=0
@@ -236,6 +287,7 @@ while run:
               st_manual *= 0
               st_target *= 0
               st_speed  *= 0
+              notify = "E"
 
             # set current position as new zero
             # and stop tracking
@@ -244,6 +296,7 @@ while run:
               st_manual *= 0
               st_target *= 0
               st_speed  *= 0
+              notify = "0"
 
             if keyname == "space":
               t_memory = t
@@ -302,9 +355,10 @@ while run:
     shadow.centerx = shadow.centerx % window.get_width()
     shadow.centery = shadow.centery % window.get_height()
 
-    window.fill( (0,0,50) ) # blue background
+    window.fill(background) # blue background
     pygame.draw.rect(window, (0, 0, 0), shadow)
     pygame.draw.rect(window, (255, 0, 0), rect)
+    textline("text 1234", (50,50), (0xFF,0xFF,0), linenumber=1)
     pygame.display.flip()
 
     if calc < calc_every:
