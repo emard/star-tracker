@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# apt install python3-evdev
+# apt install python3-serial python3-numpy python3-evdev
 
 # https://python-evdev.readthedocs.io/en/latest/tutorial.html
 
@@ -8,6 +8,7 @@ from evdev import InputDevice, list_devices, ecodes, categorize
 from select import select
 from time import time
 from serial import Serial
+from os import system
 import numpy as np
 
 # calculate next tracking position
@@ -116,23 +117,22 @@ responsive_countdown = 5
 run = True
 feed_more = 0.1 # [mm/min] to finish feed a bit early than control loop repeats
 step_time = 1 # [s] control recalculation time
-fps = 10 # [1/s] frames per second to read keys and draw
-calc_every = step_time * fps
-calc = 0 # counter
-resync_every = 60 # every min one resync
-resync = 0
-notify = " " # to print what is memorized and set tracking
 position(0,0,0,120) # reset initial position
 waitcomplete()
 fast = 1
+notify = " " # small printed message about btn control
 
 # main loop reads joystick and periodically runs timed loop
 
 select_timeout = 0.1 # [s] if no events return every 0.1 seconds
 tnext = t0 # next timer event
-# joystick values that fluctuate near idle position should be ignored
-flat_lo = 120
-flat_hi = 136
+# joystick ideal idle value should be 127 or 128
+# but actually it fluctuates around 121-135
+# so readings within this range should be ignored
+flat_lo = 121
+flat_hi = 135
+left_bumper = 0
+right_bumper = 0
 while True:
   r, w, x = select(devices, [], [], select_timeout)
   for fd in r:
@@ -142,12 +142,12 @@ while True:
         keyevent = categorize(event)
         strtype = ecodes.bytype[keyevent.event.type][keyevent.event.code]
         #print(strtype)
-        if strtype == "BTN_BASE": # left trigger
+        if strtype == "BTN_BASE" and event.value > 0: # left trigger
           # start learning
           t_memory = t
           st_memory = st_target.copy()
           notify = "*"
-        if strtype == "BTN_BASE2": # right trigger
+        if strtype == "BTN_BASE2" and event.value > 0: # right trigger
           # apply learned tracking
           st_speed = (st_target - st_memory) / (t - t_memory) * 60
           st_track = st_target.copy()
@@ -160,19 +160,27 @@ while True:
           st_speed  *= 0
           notify = "E"
         if strtype == "BTN_BASE4": # small btn right of big silver btn
-          # set current position as new origin
+          # set current position as new origin and stop
           setorigin(0,0,0)
           st_manual *= 0
           st_track  *= 0
           st_speed  *= 0
           notify = "0"
-        #if strtype == "BTN_THUMB": # red button "B"
-        if strtype == "BTN_THUMB2": # green button "A"
+        if strtype == "BTN_THUMB": # red button "B" cancel manual move, return to tracking
+          st_manual *= 0
+          notify = "/"
+        if strtype == "BTN_THUMB2": # green button "A", faster move (like shift)
           if event.value:
             fast = 10
           else:
             fast = 1
-      # analog paddle, ignore values near idle position 128 (120-136)
+        if strtype == "BTN_TOP2": # left bumper
+          left_bumper = event.value
+        if strtype == "BTN_PINKIE": # right bumper
+          right_bumper = event.value
+        if left_bumper > 0 and right_bumper > 0: # both left+right bumper = shutdown
+          system("sudo poweroff")
+      # analog paddles readings changed
       if event.type == ecodes.EV_ABS: # and (event.value < flat_lo or event.value > flat_hi):
         absevent = categorize(event) 
         strtype = ecodes.bytype[absevent.event.type][absevent.event.code]
@@ -196,9 +204,9 @@ while True:
           print("HATY", event.value)
         if axis >= 0:
           st_speed_manual[axis] = 0
-          if event.value < flat_lo:
+          if event.value <= flat_lo:
             st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 1E-6;
-          if event.value > flat_hi:
+          if event.value >= flat_hi:
             st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_hi)) * (event.value - flat_lo) * direction * fast * 1E-6;
           responsive_countdown = 3
 
@@ -228,9 +236,3 @@ while True:
     print(report)
     st_before = st_target.copy()
     t_before = t_target
-    #if resync < resync_every:
-    #  resync += 1
-    #else:
-    #  resync = 0
-    #  print("waiting for resync")
-    #  waitcomplete()
