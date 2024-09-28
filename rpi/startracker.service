@@ -1,0 +1,12 @@
+# if system-installed system service then go to lib
+# cat /lib/systemd/system/startracker.service
+# if hand-installed systemd service then go to etc
+# cat /etc/systemd/system/startracker.service
+[Unit]
+Description=Star-Tracker CNC
+After=remote-fs.target
+#After=syslog.target
+# syslog target is obsolete
+
+[Service]
+ExecStart=/home/pi/joystick.py

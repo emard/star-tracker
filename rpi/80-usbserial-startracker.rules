@@ -1,0 +1,13 @@
+# if system-installed system service then go to lib
+# cat /lib/udev/rules.d/80-usbserial-startracker.rules
+# if hand-installed systemd service then go to etc
+# cat /etc/udev/rules.d/80-usbserial-startracker.rules
+
+# star-tracker CNC board "SKR 1.3"
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="6029", \
+  SYMLINK+="ttyACM.STARTRACKER", ENV{SYSTEMD_WANTS}="startracker.service"
+
+#[  413.133608] usb 1-1.3: New USB device found, idVendor=1d50, idProduct=6029, bcdDevice= 1.00
+#[  413.133673] usb 1-1.3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+#[  413.133701] usb 1-1.3: Product: Marlin USB Device
+#[  413.133724] usb 1-1.3: Manufacturer: marlinfw.org 
