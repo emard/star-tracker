@@ -11,16 +11,17 @@ from serial import Serial
 from os import system
 import numpy as np
 
-# calculate next tracking position
+# calculate next positions for auto and manual
 def delta_position():
-  global tp
+  global tp, st_track, st_manual
   tn = time()
   # tf is time in the future
   tf = tn  # [s] unix time float seconds since 1970
   tdelta = tf-tp
   tp = tf
   # delta position
-  return (st_speed + st_speed_manual) * tdelta/60
+  st_track  += st_speed_track  * tdelta/60
+  st_manual += st_speed_manual * tdelta/60
 
 # CNC functions
 
@@ -52,7 +53,7 @@ st_target = np.array([ 0.0, 0.0, 0.0 ])
 st_memory = np.array([ 0.0, 0.0, 0.0 ])
 st_delta  = np.array([ 0.0, 0.0, 0.0 ])
 
-st_speed  = np.array([ 0.0, 0.0, 0.0 ])
+st_speed_track  = np.array([ 0.0, 0.0, 0.0 ])
 st_speed_manual = np.array([ 0.0, 0.0, 0.0 ])
 
 st_track  = np.array([ 0.0, 0.0, 0.0 ]) # auto tracking
@@ -92,7 +93,7 @@ for dev in devices.values(): print(dev)
 # open and initialize CNC machine
 
 cnc = Serial(port='/dev/ttyACM0', timeout=1)
-#cnc = serial.Serial(port='/dev/ttyS0', timeout=1)
+#cnc = Serial(port='/dev/ttyS0', timeout=1)
 
 cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
 drain()
@@ -120,7 +121,7 @@ step_time = 1 # [s] control recalculation time
 position(0,0,0,120) # reset initial position
 waitcomplete()
 fast = 1
-notify = " " # small printed message about btn control
+notify = "" # small printed message about btn control
 
 # main loop reads joystick and periodically runs timed loop
 
@@ -146,29 +147,29 @@ while True:
           # start learning
           t_memory = t
           st_memory = st_target.copy()
-          notify = "*"
+          notify += "*"
         if strtype == "BTN_BASE2" and event.value > 0: # right trigger
           # apply learned tracking
-          st_speed = (st_target - st_memory) / (t - t_memory) * 60
+          st_speed_track = (st_target - st_memory) / (t - t_memory) * 60
           st_track = st_target.copy()
           st_manual *= 0
-          notify = ">"
+          notify += ">"
         if strtype == "BTN_BASE3": # small btn left of big silver btn
           # return to zero position and stop
           st_manual *= 0
           st_track  *= 0
-          st_speed  *= 0
-          notify = "E"
+          st_speed_track *= 0
+          notify += "E"
         if strtype == "BTN_BASE4": # small btn right of big silver btn
           # set current position as new origin and stop
           setorigin(0,0,0)
           st_manual *= 0
           st_track  *= 0
-          st_speed  *= 0
-          notify = "0"
+          st_speed_track  *= 0
+          notify += "0"
         if strtype == "BTN_THUMB": # red button "B" cancel manual move, return to tracking
           st_manual *= 0
-          notify = "/"
+          notify += "/"
         if strtype == "BTN_THUMB2": # green button "A", faster move (like shift)
           if event.value:
             fast = 10
@@ -217,22 +218,22 @@ while True:
       tnext = t
       waitcomplete()
     tnext += step_time # next timer event every second
-    st_track += delta_position()
+    delta_position()
     st_target = st_track + st_manual
     t_target = time()
     st_delta = st_target - st_before
     t_delta = t_target - t_before
     feed_rate = np.linalg.norm(st_delta) * t_delta * 60 + 6 * responsive_countdown + 0.01
-    if feed_rate > 60:
-      feed_rate = 60
+    if feed_rate > 120:
+      feed_rate = 120
     if responsive_countdown:
       responsive_countdown -= 1
     x = st_target[0]
     y = st_target[1]
     z = st_target[2]
     position(x,y,z,feed_rate)
-    report = "%+8.2f%+.1f%+8.2f%+.1f%+8.2f%+.1f %s" % (x,st_speed[0],y,st_speed[1],z,st_speed[2],notify)
-    notify = " "
+    report = "%+8.2f%+.1f%+8.2f%+.1f%+8.2f%+.1f %s" % (x,st_speed_track[0],y,st_speed_track[1],z,st_speed_track[2],notify)
+    notify = ""
     print(report)
     st_before = st_target.copy()
     t_before = t_target
