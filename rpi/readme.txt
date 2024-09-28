@@ -32,4 +32,9 @@ umount /dev/sdb1
 
 power the raspberry, wait 1 minute to boot and login
 
-ssh pi@192.168.18.173
+ssh pi@raspberrypi.lan
+
+copy files over the network
+
+scp ../joystick.py 80-usbserial-startracker.rules startracker.service pi@raspberrypi.lan:~/
+
