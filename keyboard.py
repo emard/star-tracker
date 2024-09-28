@@ -48,7 +48,7 @@ import pygame
 import serial
 import time
 import numpy as np
-from math import *
+#from math import *
 
 # time when program started
 t0 = time.time()
@@ -181,7 +181,7 @@ drain()
 # turn green LED on
 cnc.write(b"M106\r")
 drain()
-# set higher currents for 5V
+# set currents for 5V
 if 0:
   cnc.write(b"M906 X1200 Y1200 Z1200\r")
   line = cnc.readline()
