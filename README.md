@@ -29,49 +29,51 @@ a position from which each leg has enough
 stroke to shorten or lengthen for tracking
 objects.
 
-Run "./keyboard.py" code. Motors will be driven
-to XYZ = 0,0,0 position which is assumed as
-initial position.
+Run "./keyboard.py" or "./joystick.py" code.
+Motors will be driven to XYZ = 0,0,0 position
+which considered as initial position.
 
 Manually point telephoto lens to any object on the sky,
 tighten it mechanically and apply maximum zoom.
 
-Use keys Ins/Del, Home/End, Page UP/Down and SHIFT
-to center object in view. Those keys change
-length of each of 3 tripod legs.
-Keys without SHIFT make length change in steps of 0.1 mm,
-Keys with SHIFT do it in steps of 1 mm.
+Use keys Ins/Del, Home/End, Page UP/Down or
+LEFT JOYSTICK X/Y and RIGHT JOYSTICK Y and SHIFT or
+GREEN "A" BUTTON to center object in view.
+Those control change length of each of 3 tripod legs.
+Keys without SHIFT or GREEN "A" BUTTON make length change in steps of 0.1 mm,
+Keys with SHIFT or GREEN "A" BUTTON do it in steps of 1 mm.
 
-When object is in the center, press SPACE. Machine
-starts "learning".
+When object is in the center, press SPACE or LEFT TRIGGER.
+Machine starts "learning".
 
 As earth rotates, object moves from the center.
 
-Use Ins/Del etc. keys to bring object to the center.
-When object is in the center again, press RETURN.
+Use Ins/Del etc. keys or JOYSTICK to bring object to the center.
+When object is in the center again, press RETURN or RIGHT TRIGGER
 
 Machine will "learn" user's centering
 and keep centering in the same direction.
 
 If object still drifts slowly from the
 center, bring it mantually to the center
-and press RETURN again. Centering can
-be repeated any number of times and it
+and press RETURN or GREEN "A" BUTTON again.
+Centering can be repeated any number of times and it
 should refine.
 
-BACKSPACE cancels manual centering done
-after the last RETURN. After BACKSPACE,
-motors wind back to position in the
-direction learned from last RETURN.
+BACKSPACE or RED "B" BUTTON cancels manual
+centering done after the last RETURN or RIGHT TRIGGER.
+After BACKSPACE or RED "B" BUTTON, motors wind back
+to position in the direction learned from last RETURN
+or RIGHT TRIGGER.
 
-If long time has passed since last SPACE or
-camera is pointed to another object, press SPACE
-to start new learning and repeat manualy centering
-and pressing RETURN.
+If long time has passed since last SPACE or LEFT TRIGGER
+or camera is pointed to another object, press SPACE or
+LEFT TRIGGER to start new learning and repeat manualy
+centering and pressing RETURN.
 
-ESC returns motor to 0,0,0 position
+ESC or BACK BUTTON returns motor to 0,0,0 position
 
-0 sets current position as 0,0,0
+0 or START BUTTON sets current position as 0,0,0
 
 Happy star tracking
 
