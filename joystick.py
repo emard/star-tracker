@@ -23,6 +23,18 @@ def delta_position():
   st_track  += st_speed_track  * tdelta/60
   st_manual += st_speed_manual * tdelta/60
 
+def speed_limit():
+  global st_speed_track, st_speed_manual
+  for i in range(3):
+    if st_speed_track[i] > max_speed:
+      st_speed_track[i] = max_speed;
+    if st_speed_track[i] < -max_speed:
+      st_speed_track[i] = -max_speed;
+    if st_speed_manual[i] > max_speed:
+      st_speed_manual[i] = max_speed;
+    if st_speed_manual[i] < -max_speed:
+      st_speed_manual[i] = -max_speed;
+
 # CNC functions
 
 def drain():
@@ -59,6 +71,7 @@ st_speed_manual = np.array([ 0.0, 0.0, 0.0 ])
 st_track  = np.array([ 0.0, 0.0, 0.0 ]) # auto tracking
 st_manual = np.array([ 0.0, 0.0, 0.0 ]) # manual change
 
+
 # timing
 
 t_target  = 0
@@ -69,6 +82,11 @@ t_memory  = 0
 
 t0 = time()
 tp = t0
+
+# max speed for each actuator
+max_speed = 60 # [mm/min]
+# max feed_rate for 3 actuators
+max_feed_rate = 2*max_speed
 
 # USB joystick
 
@@ -114,11 +132,11 @@ drain()
 
 # star tracking loop globals
 
-responsive_countdown = 5
+responsive_countdown = 0
 run = True
 feed_more = 0.1 # [mm/min] to finish feed a bit early than control loop repeats
 step_time = 1 # [s] control recalculation time
-position(0,0,0,120) # reset initial position
+position(0,0,0,max_feed_rate) # reset initial position
 waitcomplete()
 fast = 1
 notify = "" # small printed message about btn control
@@ -209,7 +227,7 @@ while True:
             st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 1E-6;
           if event.value >= flat_hi:
             st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_hi)) * (event.value - flat_lo) * direction * fast * 1E-6;
-          responsive_countdown = 3
+          #responsive_countdown = 3
 
   # periodic timer
   t = time()
@@ -218,14 +236,15 @@ while True:
       tnext = t
       waitcomplete()
     tnext += step_time # next timer event every second
+    speed_limit()
     delta_position()
     st_target = st_track + st_manual
     t_target = time()
     st_delta = st_target - st_before
     t_delta = t_target - t_before
     feed_rate = np.linalg.norm(st_delta) * t_delta * 60 + 6 * responsive_countdown + 0.01
-    if feed_rate > 120:
-      feed_rate = 120
+    if feed_rate > max_feed_rate:
+      feed_rate = max_feed_rate
     if responsive_countdown:
       responsive_countdown -= 1
     x = st_target[0]
