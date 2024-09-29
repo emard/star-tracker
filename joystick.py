@@ -86,6 +86,7 @@ t_memory  = 0
 
 t0 = time()
 tp = t0
+t  = t0
 
 # max speed for each actuator
 max_speed = 60 # [mm/min]
@@ -157,6 +158,9 @@ flat_lo = 121
 flat_hi = 135
 left_bumper = 0
 right_bumper = 0
+
+t_memory = t
+st_memory = st_target.copy()
 while True:
   r, w, x = select(devices, [], [], select_timeout)
   for fd in r:
@@ -182,6 +186,9 @@ while True:
           st_manual *= 0
           st_track  *= 0
           st_speed_track *= 0
+          st_target *= 0
+          t_memory = t
+          st_memory = st_target.copy()
           notify += "E"
         if strtype == "BTN_BASE4": # small btn right of big silver btn
           # set current position as new origin and stop
@@ -189,6 +196,9 @@ while True:
           st_manual *= 0
           st_track  *= 0
           st_speed_track  *= 0
+          st_target *= 0
+          t_memory = t
+          st_memory = st_target.copy()
           notify += "0"
         if strtype == "BTN_THUMB": # red button "B" cancel manual move, return to tracking
           st_manual *= 0
