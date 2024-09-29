@@ -28,12 +28,16 @@ def speed_limit():
   for i in range(3):
     if st_speed_track[i] > max_speed:
       st_speed_track[i] = max_speed;
+      print("limit track max")
     if st_speed_track[i] < -max_speed:
       st_speed_track[i] = -max_speed;
+      print("limit track min")
     if st_speed_manual[i] > max_speed:
       st_speed_manual[i] = max_speed;
+      print("limit manual max")
     if st_speed_manual[i] < -max_speed:
       st_speed_manual[i] = -max_speed;
+      print("limit manual min")
 
 # CNC functions
 
@@ -134,8 +138,9 @@ drain()
 
 responsive_countdown = 0
 run = True
-feed_more = 0.1 # [mm/min] to finish feed a bit early than control loop repeats
-step_time = 1 # [s] control recalculation time
+feed_faster = 0.0 # [mm/min] to finish early, feed faster
+feed_factor = 1.0 # adjusts hardware feed to real time
+step_time = 0.5 # [s] control recalculation time
 position(0,0,0,max_feed_rate) # reset initial position
 waitcomplete()
 fast = 1
@@ -224,17 +229,20 @@ while True:
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
-            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 1E-6;
+            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 1E-7;
           if event.value >= flat_hi:
-            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_hi)) * (event.value - flat_lo) * direction * fast * 1E-6;
-          #responsive_countdown = 3
+            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_hi)) * (event.value - flat_lo) * direction * fast * 1E-7;
+          responsive_countdown = 3
 
   # periodic timer
   t = time()
   if t > tnext:
+    late = 0
     if t - tnext > 2*step_time: # we came too late, reschedule
       tnext = t
       waitcomplete()
+      late = 1
+      print("late")
     tnext += step_time # next timer event every second
     speed_limit()
     delta_position()
@@ -242,7 +250,8 @@ while True:
     t_target = time()
     st_delta = st_target - st_before
     t_delta = t_target - t_before
-    feed_rate = np.linalg.norm(st_delta) * t_delta * 60 + 6 * responsive_countdown + 0.01
+    feed_rate = np.linalg.norm(st_delta) / t_delta * 60
+    feed_rate = feed_rate*feed_factor*(1+late)+feed_faster
     if feed_rate > max_feed_rate:
       feed_rate = max_feed_rate
     if responsive_countdown:
