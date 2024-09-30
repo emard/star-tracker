@@ -11,6 +11,22 @@ from serial import Serial
 from os import system
 import numpy as np
 
+# joystick button have embossed labels
+# joystick button name = os name
+ABS_LX      = "ABS_X"
+ABS_LY      = "ABS_Y"
+ABS_RY      = "ABS_RZ"
+BTN_LT      = "BTN_BASE"   # mark object (start learning)
+BTN_RT      = "BTN_BASE2"  # track object (from learning)
+BTN_GREEN_A = "BTN_THUMB2" # faster (like SHIFT)
+BTN_RED_B   = "BTN_THUMB"  # cancel manual
+BTN_BACK    = "BTN_BASE3"  # all axis back to 0
+BTN_START   = "BTN_BASE4"  # set this position as new 0
+BTN_LB      = "BTN_TOP2"   # shutdown RPI together LB & RB
+BTN_RB      = "BTN_PINKIE" # shutdown RPI together LB & RB
+
+# ABS_RX      = "ABS_RX" # not used
+
 # calculate next positions for auto and manual
 def delta_position():
   global tp, st_track, st_manual
@@ -169,18 +185,18 @@ while True:
         keyevent = categorize(event)
         strtype = ecodes.bytype[keyevent.event.type][keyevent.event.code]
         #print(strtype)
-        if strtype == "BTN_BASE" and event.value > 0: # left trigger
+        if strtype == BTN_LT and event.value > 0: # left trigger
           # start learning
           t_memory = t
           st_memory = st_target.copy()
           notify += "*"
-        if strtype == "BTN_BASE2" and event.value > 0: # right trigger
+        if strtype == BTN_RT and event.value > 0: # right trigger
           # apply learned tracking
           st_speed_track = (st_target - st_memory) / (t - t_memory) * 60
           st_track = st_target.copy()
           st_manual *= 0
           notify += ">"
-        if strtype == "BTN_BASE3": # small btn left of big silver btn
+        if strtype == BTN_BACK: # small btn left of big silver btn
           # return to zero position and stop
           st_manual *= 0
           st_track  *= 0
@@ -189,7 +205,7 @@ while True:
           t_memory = t
           st_memory = st_target.copy()
           notify += "E"
-        if strtype == "BTN_BASE4": # small btn right of big silver btn
+        if strtype == BTN_START: # small btn right of big silver btn
           # set current position as new origin and stop
           setorigin(0,0,0)
           st_manual *= 0
@@ -199,17 +215,17 @@ while True:
           t_memory = t
           st_memory = st_target.copy()
           notify += "0"
-        if strtype == "BTN_THUMB": # red button "B" cancel manual move, return to tracking
+        if strtype == BTN_RED_B: # red button "B" cancel manual move, return to tracking
           st_manual *= 0
           notify += "/"
-        if strtype == "BTN_THUMB2": # green button "A", faster move (like shift)
+        if strtype == BTN_GREEN_A: # green button "A", faster move (like shift)
           if event.value:
             fast = 10
           else:
             fast = 1
-        if strtype == "BTN_TOP2": # left bumper
+        if strtype == BTN_LB: # left bumper
           left_bumper = event.value
-        if strtype == "BTN_PINKIE": # right bumper
+        if strtype == BTN_RB: # right bumper
           right_bumper = event.value
         if left_bumper > 0 and right_bumper > 0: # both left+right bumper = shutdown
           system("sudo poweroff")
@@ -219,22 +235,22 @@ while True:
         strtype = ecodes.bytype[absevent.event.type][absevent.event.code]
         # print(strtype)
         axis = -1
-        if strtype == 'ABS_X': # left X
+        if strtype == ABS_LX: # left X
           axis = 0
           direction = 1
-        if strtype == 'ABS_Y': # left Y
+        if strtype == ABS_LY: # left Y
           axis = 1
           direction = -1
-        if strtype == 'ABS_RZ': # right Y
+        if strtype == ABS_RY: # right Y
           axis = 2
           direction = -1
         # RX axis not used
-        #if strtype == 'ABS_RX':
+        #if strtype == ABS_RX:
         #  print("RX", event.value)
-        if strtype == 'ABS_HAT0X':
-          print("HATX", event.value)
-        if strtype == 'ABS_HAT0Y':
-          print("HATY", event.value)
+        #if strtype == 'ABS_HAT0X':
+        #  print("HATX", event.value)
+        #if strtype == 'ABS_HAT0Y':
+        #  print("HATY", event.value)
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
