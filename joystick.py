@@ -141,7 +141,7 @@ responsive_countdown = 0
 run = True
 feed_faster = 0.0 # [mm/min] to finish early, feed faster
 feed_factor = 1.0 # adjusts hardware feed to real time
-step_time = 0.5 # [s] control recalculation time
+step_time = 0.3 # [s] control recalculation time
 position(0,0,0,max_feed_rate) # reset initial position
 waitcomplete()
 fast = 1
@@ -239,9 +239,9 @@ while True:
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
-            st_speed_manual[axis] = np.exp(0.12 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 2.5E-7;
+            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 2.5E-7;
           if event.value >= flat_hi:
-            st_speed_manual[axis] = np.exp(0.12 * abs(event.value - flat_hi)) * (event.value - flat_hi) * direction * fast * 2.5E-7;
+            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_hi)) * (event.value - flat_hi) * direction * fast * 2.5E-7;
           responsive_countdown = 3
 
   # periodic timer
