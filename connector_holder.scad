@@ -3,12 +3,12 @@
 
 module connector_hole()
 {
-  cube([10,20,6.0],center=true);
+  cube([10,20,6],center=true);
 }
 
 module connector_holder()
 {
-  cube([20,27,8],center=true);
+  cube([20,27,7.5],center=true);
 }
 
 module motor_wire_space()
@@ -50,7 +50,7 @@ module motor_wire_holder(half=1)
       motor_wire_space();
       translate([0,0,3-0.5+0.01])
       board_wire_space();
-      translate([0,0,3.25])
+      translate([0,0,3])
       screw_thru();  
       translate([0,0,50+3-0.01])
         cube([50,50,100],center=true);
