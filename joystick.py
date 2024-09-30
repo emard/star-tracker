@@ -137,7 +137,6 @@ drain()
 
 # star tracking loop globals
 
-responsive_countdown = 0
 run = True
 feed_faster = 0.0 # [mm/min] to finish early, feed faster
 feed_factor = 1.0 # adjusts hardware feed to real time
@@ -242,7 +241,6 @@ while True:
             st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 2.5E-7;
           if event.value >= flat_hi:
             st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_hi)) * (event.value - flat_hi) * direction * fast * 2.5E-7;
-          responsive_countdown = 3
 
   # periodic timer
   t = time()
@@ -264,8 +262,6 @@ while True:
     feed_rate = feed_rate*feed_factor*(1+late)+feed_faster
     if feed_rate > max_feed_rate:
       feed_rate = max_feed_rate
-    if responsive_countdown:
-      responsive_countdown -= 1
     x = st_target[0]
     y = st_target[1]
     z = st_target[2]
