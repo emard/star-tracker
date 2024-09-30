@@ -8,7 +8,7 @@ module inside_hole()
 
 module connector_holder()
 {
-  cube([16,16,7],center=true);
+  cube([17,16,7],center=true);
 }
 
 /*
@@ -34,14 +34,14 @@ module board_wire_space()
 module screw_in()
 {
   for(i = [-1,1])
-    translate([3*2.54/2*i,-5,-0.01])
+    translate([5*2.54/2*i,-5,-0.01])
       cylinder(d=1.8,h=3,$fn=12);
 }
 
 module screw_thru()
 {
   for(i = [-1,1])
-    translate([3*2.54/2*i,0,0.01])
+    translate([5*2.54/2*i,0,0.01])
       rotate([180,0,0])
         cylinder(d=3,h=10,$fn=12);
 }
