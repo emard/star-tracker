@@ -239,9 +239,9 @@ while True:
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
-            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 1E-7;
+            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 4E-7;
           if event.value >= flat_hi:
-            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_hi)) * (event.value - flat_lo) * direction * fast * 1E-7;
+            st_speed_manual[axis] = np.exp(1E-1 * abs(event.value - flat_hi)) * (event.value - flat_hi) * direction * fast * 4E-7;
           responsive_countdown = 3
 
   # periodic timer
