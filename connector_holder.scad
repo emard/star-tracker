@@ -3,18 +3,18 @@
 
 module connector_hole()
 {
-  cube([10,18,6.5],center=true);
+  cube([10,20,6.0],center=true);
 }
 
 module connector_holder()
 {
-  cube([20,25,8],center=true);
+  cube([20,27,8],center=true);
 }
 
 module motor_wire_space()
 {
   translate([0,11,0])
-  cube([6.5,10,1.4],center=true);
+  cube([6.5,10,1.6],center=true);
 }
 
 module board_wire_space()
@@ -44,17 +44,36 @@ module motor_wire_holder(half=1)
   {
     connector_holder();
     connector_hole();
-    motor_wire_space();
-    board_wire_space();
-    screw_in();
-    screw_thru();
-    translate([0,0,-50*half])
-      cube([50,50,100],center=true);
+    if(half == 0) // for flat surface
+    {
+      translate([0,0,3-0.8+0.01])
+      motor_wire_space();
+      translate([0,0,3-0.5+0.01])
+      board_wire_space();
+      translate([0,0,3.25])
+      screw_thru();  
+      translate([0,0,50+3-0.01])
+        cube([50,50,100],center=true);
+    }
+    else // standalone
+    {
+      motor_wire_space();
+      board_wire_space();
+      screw_in();
+      screw_thru();
+      translate([0,0,-50*half])
+        cube([50,50,100],center=true);
+    }
   }
 }
 
+if(0)
 translate([-15,0,0])
 motor_wire_holder(half=-1);
 rotate([0,180,0])
+if(0)
 translate([-15,0,0])
 motor_wire_holder(half=1);
+if(1)
+  motor_wire_holder(half=0);
+  
