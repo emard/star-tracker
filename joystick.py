@@ -151,7 +151,7 @@ notify = "" # small printed message about btn control
 select_timeout = 0.1 # [s] if no events return every 0.1 seconds
 tnext = t0 # next timer event
 # joystick ideal idle value should be 127 or 128
-# but actually it fluctuates around 121-135
+# but actually it fluctuates around 124-132
 # so readings within this range should be ignored
 flat_lo = 124
 flat_hi = 132
