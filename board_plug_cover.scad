@@ -1,5 +1,5 @@
 // mechanical protection
-// for improvised board plug
+// for improvised plug to SKR 1.3 board
 
 module inside_hole()
 {
@@ -34,14 +34,14 @@ module board_wire_space()
 module screw_in()
 {
   for(i = [-1,1])
-    translate([5*2.54/2*i,-5,-0.01])
+    translate([3*2.54/2*i,-5,-0.01])
       cylinder(d=1.8,h=3,$fn=12);
 }
 
 module screw_thru()
 {
   for(i = [-1,1])
-    translate([5*2.54/2*i,0,0.01])
+    translate([3*2.54/2*i,0,0.01])
       rotate([180,0,0])
         cylinder(d=3,h=10,$fn=12);
 }
