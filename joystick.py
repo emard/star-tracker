@@ -36,8 +36,8 @@ def delta_position():
   tdelta = tf-tp
   tp = tf
   # delta position
-  st_track  += st_speed_track  * tdelta/60
-  st_manual += st_speed_manual * tdelta/60
+  st_track  += st_speed_track  * step_time/60
+  st_manual += st_speed_manual * step_time/60
 
 def speed_limit():
   global st_speed_track, st_speed_manual
@@ -156,7 +156,7 @@ drain()
 run = True
 feed_faster = 0.0 # [mm/min] to finish early, feed faster
 feed_factor = 1.0 # adjusts hardware feed to real time
-step_time = 0.3 # [s] control recalculation time
+step_time = 0.2 # [s] control recalculation time
 position(0,0,0,max_feed_rate) # reset initial position
 waitcomplete()
 fast = 1
