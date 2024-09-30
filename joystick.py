@@ -275,7 +275,7 @@ while True:
     st_delta = st_target - st_before
     t_delta = t_target - t_before
     feed_rate = np.linalg.norm(st_delta) / t_delta * 60
-    feed_rate = feed_rate*feed_factor*(1+late)+feed_faster
+    feed_rate = feed_rate*feed_factor+feed_faster+(1+10*late)
     if feed_rate > max_feed_rate:
       feed_rate = max_feed_rate
     x = st_target[0]
