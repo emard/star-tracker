@@ -36,8 +36,8 @@ def delta_position():
   tdelta = tf-tp
   tp = tf
   # delta position
-  st_track  += st_speed_track  * step_time/60
-  st_manual += st_speed_manual * step_time/60
+  st_track  += st_speed_track  * tdelta/60
+  st_manual += st_speed_manual * tdelta/60
 
 def speed_limit():
   global st_speed_track, st_speed_manual
