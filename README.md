@@ -75,6 +75,10 @@ ESC or BACK BUTTON returns motor to 0,0,0 position
 
 0 or START BUTTON sets current position as 0,0,0
 
+Press LEFT BUMPER and RIGHT BUMPER at the same time
+to shutodown RPI (joystick.py only) so poweroff
+can be done clean.
+
 Happy star tracking
 
 ![Moon](/pic/moon.jpg)

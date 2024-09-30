@@ -89,7 +89,7 @@ tp = t0
 t  = t0
 
 # max speed for each actuator
-max_speed = 60 # [mm/min]
+max_speed = 90 # [mm/min]
 # max feed_rate for 3 actuators
 max_feed_rate = 2*max_speed
 
