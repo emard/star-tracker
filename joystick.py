@@ -66,7 +66,7 @@ def waitcomplete():
   #return
   cnc.write(b"M400\r")
   for line in cnc.readline():
-    if line < 20: # probably "ok" response
+    if line > 0 and line < 20: # probably "ok" response
       break
   drain()
 
@@ -134,6 +134,7 @@ for dev in devices.values(): print(dev)
 cnc = Serial(port='/dev/ttyACM0', timeout=1)
 #cnc = Serial(port='/dev/ttyS0', timeout=1)
 
+waitcomplete()
 cnc.write(b"M92 X1600 Y1600 Z1600\r") # 1600 steps per mm
 drain()
 cnc.write(b"M92\r")
@@ -263,7 +264,7 @@ while True:
   if t > tnext:
     late = 0
     if t - tnext > 2*step_time: # we came too late, reschedule
-      tnext = t
+      tnext = t + 1
       waitcomplete()
       late = 1
       print("late")
