@@ -221,7 +221,7 @@ while True:
           notify += "/"
         if strtype == BTN_GREEN_A: # green button "A", faster move (like shift)
           if event.value:
-            fast = 10
+            fast = 5
           else:
             fast = 1
         if strtype == BTN_LB: # left bumper
@@ -255,9 +255,9 @@ while True:
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
-            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 2.5E-7;
+            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 5E-7;
           if event.value >= flat_hi:
-            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_hi)) * (event.value - flat_hi) * direction * fast * 2.5E-7;
+            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_hi)) * (event.value - flat_hi) * direction * fast * 5E-7;
 
   # periodic timer
   t = time()
