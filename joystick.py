@@ -20,12 +20,14 @@ BTN_LT      = "BTN_BASE"   # mark object (start learning)
 BTN_RT      = "BTN_BASE2"  # track object (from learning)
 BTN_GREEN_A = "BTN_THUMB2" # faster (like SHIFT)
 BTN_RED_B   = "BTN_THUMB"  # cancel manual
+BTN_BLUE_X  = "BTN_TOP"    # shoot
 BTN_BACK    = "BTN_BASE3"  # all axis back to 0
 BTN_START   = "BTN_BASE4"  # set this position as new 0
 BTN_LB      = "BTN_TOP2"   # shutdown RPI together LB & RB
 BTN_RB      = "BTN_PINKIE" # shutdown RPI together LB & RB
 
 # ABS_RX      = "ABS_RX" # not used
+# BTN_YELLOW_Y = ["BTN_JOYSTICK", "BTN_TRIGGER"] # not used
 
 # calculate next positions for auto and manual
 def delta_position():
@@ -176,7 +178,7 @@ flat_hi = 132
 joy_exp = 0.05
 joy_lin = 0.05
 # fast factor with green btn (like shift) held
-shift_fast = 5
+shift_fast = 4
 
 left_bumper = 0
 right_bumper = 0
@@ -230,6 +232,9 @@ while True:
             fast = shift_fast
           else:
             fast = 1
+        if strtype == BTN_BLUE_X: # blue button "X", shoot
+          system("sudo /home/pi/chdkptp/chdkptp.sh -c -erec")
+          system("sudo /home/pi/chdkptp/chdkptp.sh -c -eshoot")
         if strtype == BTN_LB: # left bumper
           left_bumper = event.value
         if strtype == BTN_RB: # right bumper
