@@ -38,3 +38,7 @@ copy files over the network
 
 scp ../joystick.py 80-usbserial-startracker.rules startracker.service pi@raspberrypi.lan:~/
 
+# for remote shooting from joystick blue btn:
+# install chdk (1.6.1 known to work) and chdkptp raspbian (r964 known to work)
+# chdkptp needs libusb 0.1
+# apt install libusb-0.1-4
