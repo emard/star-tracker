@@ -172,6 +172,12 @@ tnext = t0 # next timer event
 # so readings within this range should be ignored
 flat_lo = 124
 flat_hi = 132
+# joystick exp/lin sensitivity
+joy_exp = 0.05
+joy_lin = 0.05
+# fast factor with green btn (like shift) held
+shift_fast = 5
+
 left_bumper = 0
 right_bumper = 0
 
@@ -221,7 +227,7 @@ while True:
           notify += "/"
         if strtype == BTN_GREEN_A: # green button "A", faster move (like shift)
           if event.value:
-            fast = 5
+            fast = shift_fast
           else:
             fast = 1
         if strtype == BTN_LB: # left bumper
@@ -255,9 +261,9 @@ while True:
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
-            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_lo)) * (event.value - flat_lo) * direction * fast * 5E-7;
+            st_speed_manual[axis] = np.exp(joy_exp * abs(event.value - flat_lo)) * np.sign(event.value - flat_lo) * direction * fast * joy_lin;
           if event.value >= flat_hi:
-            st_speed_manual[axis] = np.exp(0.1 * abs(event.value - flat_hi)) * (event.value - flat_hi) * direction * fast * 5E-7;
+            st_speed_manual[axis] = np.exp(joy_exp * abs(event.value - flat_hi)) * np.sign(event.value - flat_hi) * direction * fast * joy_lin;
 
   # periodic timer
   t = time()
