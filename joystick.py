@@ -233,8 +233,7 @@ while True:
           else:
             fast = 1
         if strtype == BTN_BLUE_X: # blue button "X", shoot
-          system("sudo /home/pi/chdkptp/chdkptp.sh -c -erec")
-          system("sudo /home/pi/chdkptp/chdkptp.sh -c -eshoot")
+          system("(sudo /home/pi/chdkptp/chdkptp.sh -c -erec; sudo /home/pi/chdkptp/chdkptp.sh -c -eshoot) &")
         if strtype == BTN_LB: # left bumper
           left_bumper = event.value
         if strtype == BTN_RB: # right bumper
