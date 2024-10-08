@@ -189,9 +189,13 @@ shift_fast = 4
 left_bumper = 0
 right_bumper = 0
 
-# HAT is used to change direction of x and y axis
-hat_x = 1
-hat_y = 1
+# HAT is used to change direction of X and Y motors
+# BUMPERs LEFT and RIGHT are used to change direction of Z motor
+# here is default (negative values because for joystick Y
+# axis are direction up as negative while we need direction up as positive
+dir_x =  1
+dir_y = -1
+dir_z = -1
 
 t_memory = t
 st_memory = st_target.copy()
@@ -246,8 +250,10 @@ while True:
           system("(sudo /home/pi/chdkptp/chdkptp.sh -c -erec; sudo /home/pi/chdkptp/chdkptp.sh -c -eshoot) &")
         if strtype == BTN_LB: # left bumper
           left_bumper = event.value
+          dir_z = 1
         if strtype == BTN_RB: # right bumper
           right_bumper = event.value
+          dir_z = -1
         if left_bumper > 0 and right_bumper > 0: # both left+right bumper = shutdown
           system("sudo poweroff")
       # analog paddles readings changed
@@ -258,15 +264,15 @@ while True:
         axis = -1
         if strtype == ABS_LX: # left X
           axis = 0
-          direction = hat_x
-        # Y axis joystick returns negative value at up direction
-        # -hat_y and -1 are used to make joystick positive at up direction
+          direction = dir_x
+        # Y axis joystick (ABS_LY and ABS_RY) read out
+        # negative value at up direction
         if strtype == ABS_LY: # left Y
           axis = 1
-          direction = -hat_y # make y positive up
+          direction = dir_y
         if strtype == ABS_RY: # right Y
           axis = 2
-          direction = -1 # make y positive up
+          direction = dir_z
         # "direction" is used to invert joystick axis
         # which is by default down positive
         # "direction" makes Y postive up
@@ -274,9 +280,9 @@ while True:
         #if strtype == ABS_RX:
         #  print("RX", event.value)
         if strtype == HAT_X and event.value != 0:
-          hat_x = event.value;
+          dir_x = event.value; # left -1, right 1
         if strtype == HAT_Y and event.value != 0:
-          hat_y = -event.value; # make y positive up
+          dir_y = event.value; # up -1, down 1
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
