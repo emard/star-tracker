@@ -4,6 +4,10 @@
 
 # https://python-evdev.readthedocs.io/en/latest/tutorial.html
 
+# recommended tripod motor axis
+#  Z
+# X Y
+
 from evdev import InputDevice, list_devices, ecodes, categorize
 from select import select
 from time import time
@@ -16,6 +20,8 @@ import numpy as np
 ABS_LX      = "ABS_X"
 ABS_LY      = "ABS_Y"
 ABS_RY      = "ABS_RZ"
+HAT_X       = "ABS_HAT0X"  # set X direction
+HAT_Y       = "ABS_HAT0Y"  # set Y direction
 BTN_LT      = "BTN_BASE"   # mark object (start learning)
 BTN_RT      = "BTN_BASE2"  # track object (from learning)
 BTN_GREEN_A = "BTN_THUMB2" # faster (like SHIFT)
@@ -183,6 +189,10 @@ shift_fast = 4
 left_bumper = 0
 right_bumper = 0
 
+# HAT is used to change direction of x and y axis
+hat_x = 1
+hat_y = 1
+
 t_memory = t
 st_memory = st_target.copy()
 while True:
@@ -248,20 +258,25 @@ while True:
         axis = -1
         if strtype == ABS_LX: # left X
           axis = 0
-          direction = 1
+          direction = hat_x
+        # Y axis joystick returns negative value at up direction
+        # -hat_y and -1 are used to make joystick positive at up direction
         if strtype == ABS_LY: # left Y
           axis = 1
-          direction = -1
+          direction = -hat_y # make y positive up
         if strtype == ABS_RY: # right Y
           axis = 2
-          direction = -1
+          direction = -1 # make y positive up
+        # "direction" is used to invert joystick axis
+        # which is by default down positive
+        # "direction" makes Y postive up
         # RX axis not used
         #if strtype == ABS_RX:
         #  print("RX", event.value)
-        #if strtype == 'ABS_HAT0X':
-        #  print("HATX", event.value)
-        #if strtype == 'ABS_HAT0Y':
-        #  print("HATY", event.value)
+        if strtype == HAT_X and event.value != 0:
+          hat_x = event.value;
+        if strtype == HAT_Y and event.value != 0:
+          hat_y = -event.value; # make y positive up
         if axis >= 0:
           st_speed_manual[axis] = 0
           if event.value <= flat_lo:
